@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="de" data-base="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wir stehen zusammen</title>
+<meta name="description" content="Bundesweite Kampagne: Streiks mit Protest gegen Sozialabbau verbinden. Gib dein Protestversprechen ab.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@500;600;700;800&family=Figtree:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="css/wsz.css">
+<link rel="icon" href="img/logo.webp">
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="index.html" aria-label="Wir stehen zusammen – Startseite"><img src="img/logo.webp" alt="" width="44" height="44"><span>#WirStehenZusammen</span></a>
+    <nav class="navlinks" id="navlinks" aria-label="Hauptmenü"><a href="index.html" aria-current="page">Start</a><a href="worum-es-geht.html">Worum es geht</a><a href="staedte.html">Städte</a><a href="mitmachen.html">Mitmachen</a><a href="material.html">Material</a><a href="presse.html">Presse</a></nav>
+    <a class="btn btn-hot cta" href="index.html#versprechen">Protestversprechen</a>
+    <button type="button" class="menu-btn" aria-expanded="false" aria-controls="navlinks"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span>Menü</span></button>
+  </div>
+</header>
+<main id="start">
+<section class="hero">
+  <div class="photo" style="background-image:url('img/demo-blockade.jpg')" role="img" aria-label="Kampagnen-Teaser, läuft stumm im Hintergrund">
+    <video class="bgvid" id="bgvid" autoplay muted loop playsinline preload="metadata" aria-hidden="true" tabindex="-1"><source src="media/teaser-loop.mp4" type="video/mp4"></video>
+    <a class="vid-cta" href="worum-es-geht.html#teaser"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l13 8-13 8z" fill="currentColor"/></svg>Teaser mit Ton</a>
+    <span class="ph dark vid-ph">Platzhalter · Teaser läuft hier stumm</span>
+  </div>
+  <div class="bars">
+    <div class="bar bar-1"><div class="wrap"><h1>Wir stehen zusammen.</h1></div></div>
+    <div class="bar bar-2"><div class="wrap"><span class="big">SOZIALSTAAT<br>VERTEIDIGEN.</span></div></div>
+  </div>
+  <div class="wrap below on-dark">
+    <div class="logo"><img src="img/logo.webp" alt="Logo Wir stehen zusammen"></div>
+    <div><p class="lead">Die Angriffe auf den Sozialstaat spitzen sich zu. Wir bringen Aktivist*innen und Kolleg*innen bundesweit zusammen und verbinden Streiks mit Protest.</p></div>
+  </div>
+</section>
+
+<section class="pledge" id="versprechen">
+  <div class="wrap">
+    <div class="p-head">
+      <div>
+        <span class="tag hot">Protestversprechen</span>
+        <h2 style="margin-top:14px">Wo bist du dabei?</h2>
+        <p class="p-intro">Tipp auf deine Stadt und gib dein Versprechen ab. Alle sehen, wie viele schon zugesagt haben und wo wir überall sind.</p>
+      </div>
+      <div class="total">
+        <b data-count="total">18.875</b>
+        <span>Versprechen<br>bundesweit</span>
+        <span class="ph dark">Beispielzahlen</span>
+      </div>
+    </div>
+    <div class="p-grid">
+      <div class="mapcol">
+        <svg class="demap" id="map" viewBox="0 0 520 680" role="group" aria-label="Deutschlandkarte mit allen Städten, in denen wir aktiv sind"></svg>
+        <div class="maplegend">
+          <span><i class="sq own"></i>Städte, in denen wir aktiv sind</span>
+          <span class="ph dark">Orte symbolisch</span>
+        </div>
+      </div>
+      <div class="listcol">
+        <label class="search" for="city-search">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+          <input id="city-search" type="search" placeholder="Stadt oder Treffpunkt suchen" autocomplete="off">
+        </label>
+        <p class="rank-head">Welche Stadt wird am lautesten? Die Rangliste zeigt, wo die meisten zugesagt haben.</p>
+        <ol class="cities" id="cities"></ol>
+        <button type="button" class="more" id="more">Alle Städte anzeigen</button>
+        <p class="missing">Deine Stadt fehlt? <a href="mitmachen.html#gruenden">Gründe eine Gruppe</a> oder schreib uns.</p>
+      </div>
+    </div>
+    <p class="p-quote">„Wenn der Sozialstaat angegriffen wird, gehe ich mit auf die Straße. Wir stehen zusammen.“ <span class="ph dark">Wortlaut Platzhalter</span></p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="sec-head"><span class="tag navy">Mehr erfahren</span><h2>Streiks mit Protest verbinden.</h2></div>
+    <div class="guide">
+      <a href="worum-es-geht.html"><span class="tag" style="justify-self:start">Worum es geht</span><h3>Es reicht!</h3><p>Milliarden sollen gekürzt werden. Warum Protest allein nicht reicht und was unser Plan ist.</p><span class="more-l">Weiterlesen →</span></a>
+      <a href="mitmachen.html"><span class="tag hot" style="justify-self:start">Mitmachen</span><h3>Dafür braucht es dich</h3><p>Im Betrieb, im Kiez, im Bündnis. Komm zum ersten Treffen oder gründe eine Gruppe in deiner Stadt.</p><span class="more-l">So machst du mit →</span></a>
+      <a href="material.html"><span class="tag navy" style="justify-self:start">Material</span><h3>Flyer, Logo, Sharepics</h3><p>Alles zum Kopieren, Verteilen und Teilen für eure Aktionen vor Ort.</p><span class="more-l">Zum Material →</span></a>
+    </div>
+  </div>
+</section>
+
+<section class="closer" style="background-image:url('img/demo-verdi.jpg')" role="img" aria-label="Beschäftigte mit ver.di-Westen und Transparent für Entlastung">
+  <div class="band"><div class="wrap"><span class="hash">#WirStehenZusammen</span><a class="btn btn-hot" href="#versprechen">Werde Teil der Protestbewegung</a></div></div>
+</section>
+</main>
+<footer>
+  <div class="wrap">
+    <span>© 2026 Wir stehen zusammen · <span class="sel" id="foot-mail">kontakt@wirstehenzusammen.de</span> <button type="button" class="copy" data-copy="foot-mail" style="color:#fff;border-color:rgba(255,255,255,.35)">Kopieren</button> <span class="ph dark">Adresse Platzhalter</span></span>
+    <nav aria-label="Weitere Seiten"><a href="material.html">Material</a><a href="presse.html">Presse</a><a href="impressum.html">Impressum</a><a href="datenschutz.html">Datenschutz</a></nav>
+  </div>
+</footer>
+<script src="js/staedte.js"></script>
+<script src="js/wsz.js"></script>
+</body>
+</html>

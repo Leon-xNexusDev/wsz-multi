@@ -1,0 +1,483 @@
+#!/usr/bin/env python3
+"""Baut die WSZ-Website aus _quellen/src/ in den Repo-Root.
+
+Aufruf aus dem Repo-Root:  python3 _quellen/build.py
+"""
+import json, os, shutil, sys
+
+ROOT = os.path.dirname(os.path.abspath(__file__))
+SRC = os.path.join(ROOT, 'src')
+DIST = os.path.dirname(ROOT)
+ART = os.path.join(ROOT, 'artifact')
+IMG = os.path.join(SRC, 'img')
+
+# ---------- Städte (Beispieldaten) ----------
+CITIES = [
+    dict(id='dresden', n='Dresden', lon=13.74, lat=51.05, tp='Theaterplatz', c=1840, side='r'),
+    dict(id='magdeburg', n='Magdeburg', lon=11.63, lat=52.13, tp='Domplatz', c=1215, side='r'),
+    dict(id='berlin', n='Berlin', lon=13.40, lat=52.52, tp='Treffpunkt folgt', c=2960, side='r'),
+    dict(id='hamburg', n='Hamburg', lon=9.99, lat=53.55, tp='Treffpunkt folgt', c=2110, side='r'),
+    dict(id='leipzig', n='Leipzig', lon=12.37, lat=51.34, tp='Treffpunkt folgt', c=1530, side='r'),
+    dict(id='koeln', n='Köln', lon=6.96, lat=50.94, tp='Treffpunkt folgt', c=1495, side='r'),
+    dict(id='muenchen', n='München', lon=11.58, lat=48.14, tp='Treffpunkt folgt', c=1380, side='r'),
+    dict(id='frankfurt', n='Frankfurt', lon=8.68, lat=50.11, tp='Treffpunkt folgt', c=990, side='r'),
+    dict(id='stuttgart', n='Stuttgart', lon=9.18, lat=48.78, tp='Treffpunkt folgt', c=760, side='r'),
+    dict(id='hannover', n='Hannover', lon=9.73, lat=52.37, tp='Treffpunkt folgt', c=705, side='r'),
+    dict(id='bremen', n='Bremen', lon=8.80, lat=53.08, tp='Treffpunkt folgt', c=540, side='l'),
+    dict(id='dortmund', n='Dortmund', lon=7.47, lat=51.51, tp='Treffpunkt folgt', c=610, side='r'),
+    dict(id='nuernberg', n='Nürnberg', lon=11.08, lat=49.45, tp='Treffpunkt folgt', c=480, side='r'),
+    dict(id='chemnitz', n='Chemnitz', lon=12.92, lat=50.83, tp='Treffpunkt folgt', c=395, side='b'),
+    dict(id='erfurt', n='Erfurt', lon=11.03, lat=50.98, tp='Treffpunkt folgt', c=360, side='l'),
+    dict(id='rostock', n='Rostock', lon=12.10, lat=54.09, tp='Treffpunkt folgt', c=330, side='r'),
+    dict(id='bielefeld', n='Bielefeld', lon=8.53, lat=52.02, tp='Treffpunkt folgt', c=275, side='r'),
+    dict(id='mainz', n='Mainz', lon=8.27, lat=50.00, tp='Treffpunkt folgt', c=250, side='l'),
+    dict(id='freiburg', n='Freiburg', lon=7.85, lat=47.99, tp='Treffpunkt folgt', c=420, side='r'),
+    dict(id='goettingen', n='Göttingen', lon=9.93, lat=51.54, tp='Treffpunkt folgt', c=230, side='r'),
+]
+ALPHA = sorted(CITIES, key=lambda c: c['n'].replace('Ö', 'O').replace('ü', 'u'))
+TOTAL = sum(c['c'] for c in CITIES)
+
+def fmt(n):
+    return f'{n:,}'.replace(',', '.')
+
+NAV = [('index.html', 'Start'), ('worum-es-geht.html', 'Worum es geht'), ('staedte.html', 'Städte'),
+       ('mitmachen.html', 'Mitmachen'), ('material.html', 'Material'), ('presse.html', 'Presse')]
+
+PH = lambda txt, dark=False: f'<span class="ph{" dark" if dark else ""}">{txt}</span>'
+MENU_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>'
+PLAY = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l13 8-13 8z" fill="currentColor"/></svg>'
+
+
+def header(base, active):
+    links = ''.join(
+        f'<a href="{base}{href}"{" aria-current=\"page\"" if href == active else ""}>{label}</a>' for href, label in NAV)
+    return f'''<header class="top">
+  <div class="wrap">
+    <a class="brand" href="{base}index.html" aria-label="Wir stehen zusammen – Startseite"><img src="{base}img/logo.webp" alt="" width="44" height="44"><span>#WirStehenZusammen</span></a>
+    <nav class="navlinks" id="navlinks" aria-label="Hauptmenü">{links}</nav>
+    <a class="btn btn-hot cta" href="{base}index.html#versprechen">Protestversprechen</a>
+    <button type="button" class="menu-btn" aria-expanded="false" aria-controls="navlinks">{MENU_ICON}<span>Menü</span></button>
+  </div>
+</header>'''
+
+
+def footer(base):
+    return f'''<footer>
+  <div class="wrap">
+    <span>© 2026 Wir stehen zusammen · <span class="sel" id="foot-mail">kontakt@wirstehenzusammen.de</span> <button type="button" class="copy" data-copy="foot-mail" style="color:#fff;border-color:rgba(255,255,255,.35)">Kopieren</button> {PH("Adresse Platzhalter", True)}</span>
+    <nav aria-label="Weitere Seiten"><a href="{base}material.html">Material</a><a href="{base}presse.html">Presse</a><a href="{base}impressum.html">Impressum</a><a href="{base}datenschutz.html">Datenschutz</a></nav>
+  </div>
+</footer>'''
+
+
+def cta_band(base, text='Bist du dabei?', btn='Protestversprechen abgeben'):
+    return f'''<section class="cta-band"><div class="wrap"><p>{text}</p><a class="btn btn-white" href="{base}index.html#versprechen">{btn}</a></div></section>'''
+
+
+def page_head(tag, title, lead='', crumbs=''):
+    return f'''<section class="page-head">
+  <div class="wrap">
+    {crumbs}
+    <span class="tag">{tag}</span>
+    <h1>{title}</h1>
+    {f'<p class="lead">{lead}</p>' if lead else ''}
+  </div>
+</section>'''
+
+
+def shell(title, body, base='', active='', desc='', artifact_main=False):
+    head = f'''<title>{title}</title>
+<meta name="description" content="{desc}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@500;600;700;800&family=Figtree:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="{base}css/wsz.css">
+<link rel="icon" href="{base}img/logo.webp">'''
+    content = f'''{header(base, active)}
+<main id="start">
+{body}
+</main>
+{footer(base)}
+<script src="{base}js/staedte.js"></script>
+<script src="{base}js/wsz.js"></script>'''
+    if artifact_main:
+        # Artifact-Hauptseite: Gerüst kommt vom Viewer, Basis-Pfad per Script setzen
+        return (f'<title>Wir stehen zusammen</title>\n<meta name="claude:viewport-fit-sides" content="cover">\n'
+                + head.split('\n', 1)[1].replace(f'<title>{title}</title>\n', '')
+                + f'\n<script>document.documentElement.setAttribute("data-base","{base}");document.documentElement.lang="de";</script>\n'
+                + content)
+    return f'''<!doctype html>
+<html lang="de" data-base="{base}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+{head}
+</head>
+<body>
+{content}
+</body>
+</html>
+'''
+
+# ---------- Seiten ----------
+
+def p_index(base=''):
+    body = f'''<section class="hero">
+  <div class="photo" style="background-image:url('{base}img/demo-blockade.jpg')" role="img" aria-label="Kampagnen-Teaser, läuft stumm im Hintergrund">
+    <video class="bgvid" id="bgvid" autoplay muted loop playsinline preload="metadata" aria-hidden="true" tabindex="-1"><source src="{base}media/teaser-loop.mp4" type="video/mp4"></video>
+    <a class="vid-cta" href="{base}worum-es-geht.html#teaser">{PLAY}Teaser mit Ton</a>
+    {PH("Platzhalter · Teaser läuft hier stumm", True).replace('class="ph dark"', 'class="ph dark vid-ph"')}
+  </div>
+  <div class="bars">
+    <div class="bar bar-1"><div class="wrap"><h1>Wir stehen zusammen.</h1></div></div>
+    <div class="bar bar-2"><div class="wrap"><span class="big">SOZIALSTAAT<br>VERTEIDIGEN.</span></div></div>
+  </div>
+  <div class="wrap below on-dark">
+    <div class="logo"><img src="{base}img/logo.webp" alt="Logo Wir stehen zusammen"></div>
+    <div><p class="lead">Die Angriffe auf den Sozialstaat spitzen sich zu. Wir bringen Aktivist*innen und Kolleg*innen bundesweit zusammen und verbinden Streiks mit Protest.</p></div>
+  </div>
+</section>
+
+<section class="pledge" id="versprechen">
+  <div class="wrap">
+    <div class="p-head">
+      <div>
+        <span class="tag hot">Protestversprechen</span>
+        <h2 style="margin-top:14px">Wo bist du dabei?</h2>
+        <p class="p-intro">Tipp auf deine Stadt und gib dein Versprechen ab. Alle sehen, wie viele schon zugesagt haben und wo wir überall sind.</p>
+      </div>
+      <div class="total">
+        <b data-count="total">{fmt(TOTAL)}</b>
+        <span>Versprechen<br>bundesweit</span>
+        {PH("Beispielzahlen", True)}
+      </div>
+    </div>
+    <div class="p-grid">
+      <div class="mapcol">
+        <svg class="demap" id="map" viewBox="0 0 520 680" role="group" aria-label="Deutschlandkarte mit allen Städten, in denen wir aktiv sind"></svg>
+        <div class="maplegend">
+          <span><i class="sq own"></i>Städte, in denen wir aktiv sind</span>
+          {PH("Orte symbolisch", True)}
+        </div>
+      </div>
+      <div class="listcol">
+        <label class="search" for="city-search">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+          <input id="city-search" type="search" placeholder="Stadt oder Treffpunkt suchen" autocomplete="off">
+        </label>
+        <p class="rank-head">Welche Stadt wird am lautesten? Die Rangliste zeigt, wo die meisten zugesagt haben.</p>
+        <ol class="cities" id="cities"></ol>
+        <button type="button" class="more" id="more">Alle Städte anzeigen</button>
+        <p class="missing">Deine Stadt fehlt? <a href="{base}mitmachen.html#gruenden">Gründe eine Gruppe</a> oder schreib uns.</p>
+      </div>
+    </div>
+    <p class="p-quote">„Wenn der Sozialstaat angegriffen wird, gehe ich mit auf die Straße. Wir stehen zusammen.“ {PH("Wortlaut Platzhalter", True)}</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="sec-head"><span class="tag navy">Mehr erfahren</span><h2>Streiks mit Protest verbinden.</h2></div>
+    <div class="guide">
+      <a href="{base}worum-es-geht.html"><span class="tag" style="justify-self:start">Worum es geht</span><h3>Es reicht!</h3><p>Milliarden sollen gekürzt werden. Warum Protest allein nicht reicht und was unser Plan ist.</p><span class="more-l">Weiterlesen →</span></a>
+      <a href="{base}mitmachen.html"><span class="tag hot" style="justify-self:start">Mitmachen</span><h3>Dafür braucht es dich</h3><p>Im Betrieb, im Kiez, im Bündnis. Komm zum ersten Treffen oder gründe eine Gruppe in deiner Stadt.</p><span class="more-l">So machst du mit →</span></a>
+      <a href="{base}material.html"><span class="tag navy" style="justify-self:start">Material</span><h3>Flyer, Logo, Sharepics</h3><p>Alles zum Kopieren, Verteilen und Teilen für eure Aktionen vor Ort.</p><span class="more-l">Zum Material →</span></a>
+    </div>
+  </div>
+</section>
+
+<section class="closer" style="background-image:url('{base}img/demo-verdi.jpg')" role="img" aria-label="Beschäftigte mit ver.di-Westen und Transparent für Entlastung">
+  <div class="band"><div class="wrap"><span class="hash">#WirStehenZusammen</span><a class="btn btn-hot" href="#versprechen">Werde Teil der Protestbewegung</a></div></div>
+</section>'''
+    return body
+
+
+def p_worum(base=''):
+    return f'''{page_head("Worum es geht", "Erst Sozialabbau stoppen. Dann gemeinsam weiter.", "Die Angriffe auf den Sozialstaat spitzen sich zu. Hier steht, warum wir uns organisieren und wie wir Druck aufbauen wollen.")}
+
+<section class="situation" aria-labelledby="es-reicht">
+  <div class="wrap stack">
+    <div class="box">
+      <p>Milliarden sollen gekürzt werden. Gleichzeitig sollen wir länger arbeiten und noch mehr Kosten selbst tragen.</p>
+      <p>Wer den Sozialstaat abbaut, schafft Unsicherheit und stärkt den Nährboden für die Hetze von Faschist*innen. Die Antwort der AfD auf den Sozialabbau ist Spaltung.</p>
+    </div>
+    <h2 class="head" id="es-reicht">ES REICHT!</h2>
+    <div class="box">
+      <p>In vielen Städten sind wir schon mit Tausenden gegen Sozialabbau auf die Straße gegangen. Dieser Widerstand wächst.</p>
+      <p><span class="hl">Aber Protest allein reicht nicht.</span> Wir müssen raus aus der Bubble, rein in Kieze und Betriebe. Die Beschäftigten haben den entscheidenden Hebel: Mit Streiks können sie ganze Bereiche lahmlegen.</p>
+    </div>
+  </div>
+</section>
+
+<section class="plan" id="plan">
+  <div class="wrap">
+    <div class="head">
+      <div><span class="tag hot">Unser Plan</span><h2 style="margin-top:14px">STREIKS mit Protest verbinden.</h2></div>
+      <p>Gute Daseinsvorsorge und faire Arbeitsbedingungen gehen uns alle an. Unter dem Motto #WirStehenZusammen bauen wir eine Protestkaskade auf, die in die Tarifrunden mündet.</p>
+    </div>
+    <div class="steps">
+      <article class="step"><span class="when">Herbst 2026</span><h3>Protestkaskade</h3><p>Demos und Aktionen in vielen Städten, eine nach der anderen. Jede Welle größer als die letzte. {PH("Termine folgen")}</p></article>
+      <article class="step"><span class="when">Laufend</span><h3>Tarifrunde Charité</h3><p>Kolleg*innen kämpfen dort für bessere Löhne <strong>und</strong> gegen Kürzungen im Gesundheitswesen. Der Ausgang prägt die Krankenhäuser bundesweit.</p></article>
+      <article class="step"><span class="when">2027</span><h3>Tarifrunde öffentlicher Dienst</h3><p><strong>2,5 Millionen Beschäftigte.</strong> Wenn wir ihre Streiks mit Protest gegen Sozialabbau verbinden, entsteht richtig Druck.</p></article>
+    </div>
+  </div>
+</section>
+
+<section class="teaser" id="teaser" aria-labelledby="teaser-h" style="padding-bottom:72px">
+  <div class="wrap">
+    <div class="t-head"><span class="tag hot">Teaser</span><h2 id="teaser-h">Jetzt mit Ton ansehen.</h2></div>
+    <div class="player"><video id="teaser-video" controls playsinline preload="none" poster="{base}img/demo-verdi.jpg"><source src="{base}media/teaser.mp4" type="video/mp4">Dein Browser kann das Video nicht abspielen.</video></div>
+    <p class="t-note">{PH("Platzhalter · Teaser-Datei folgt")} Länge ca. 30–60 Sekunden. Auf der Startseite läuft eine stumme Schleife davon.</p>
+  </div>
+</section>
+
+{cta_band(base, "Gemeinsam sind wir lauter.")}'''
+
+
+def p_mitmachen(base=''):
+    return f'''{page_head("Mitmachen", "Dafür braucht es DICH!", "Ein breites Bündnis aus Gewerkschaften, Linkspartei und zivilgesellschaftlichen Initiativen entsteht nicht von allein. Pack mit an.")}
+
+<section class="you" style="background:var(--bg)">
+  <div class="wrap">
+    <div class="ways" style="margin-top:0">
+      <div class="way"><span class="tag navy" style="justify-self:start">Im Betrieb</span><h3>Mit Kolleg*innen reden</h3><p>Im Krankenhaus, in der Stadtreinigung, in der Kita: Gespräche sind der erste Schritt zum Streik.</p></div>
+      <div class="way"><span class="tag" style="justify-self:start">Im Kiez</span><h3>Nachbarschaft mobilisieren</h3><p>Flyer verteilen, Infostände machen, Leute zu den Aktionen holen. <a href="{base}material.html">Material gibt's hier.</a></p></div>
+      <div class="way"><span class="tag hot" style="justify-self:start">In der Stadt</span><h3>Bündnis aufbauen</h3><p>Gewerkschaften, Initiativen und Vereine vor Ort an einen Tisch holen. Gemeinsam sind wir lauter.</p></div>
+    </div>
+    <div class="meet">
+      <div class="card on-dark">
+        <span class="tag" style="justify-self:start">Erstes Treffen</span>
+        <p class="when">[Datum, Zeit, Ort]</p>
+        <p>Komm zum ersten Treffen, Sozialratschlag oder Stammtisch in deiner Stadt. Die Termine stehen auf den <a href="{base}staedte.html" style="color:#fff">Stadtseiten</a>.</p>
+        {PH("Platzhalter", True).replace('">', '" style="justify-self:start">', 1)}
+      </div>
+      <div class="card berry on-dark" id="telegram">
+        <span class="tag navy" style="justify-self:start">Telegram</span>
+        <p class="when">Bundesweiter Kanal</p>
+        <p>Alle Infos zu Aktionen und Terminen direkt aufs Handy.</p>
+        <a class="btn btn-navy" href="#telegram" style="justify-self:start">Kanal beitreten</a>
+        {PH("Link aus QR-Code eintragen", True).replace('">', '" style="justify-self:start">', 1)}
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="gruenden" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head"><span class="tag navy">Deine Stadt fehlt?</span><h2>Gründe eine Gruppe.</h2><p>Du musst das nicht allein stemmen. So kommt deine Stadt auf die Karte:</p></div>
+    <ol class="steps3">
+      <li><h3>Schreib uns</h3><p>Kurze Mail an <span class="sel" id="grp-mail">kontakt@wirstehenzusammen.de</span> mit Stadt und wie wir dich erreichen. <button type="button" class="copy" data-copy="grp-mail">Kopieren</button></p></li>
+      <li><h3>Wir vernetzen euch</h3><p>Wir bringen dich mit Leuten aus deiner Stadt zusammen, die schon zugesagt haben, und mit Gewerkschafter*innen vor Ort.</p></li>
+      <li><h3>Erstes Treffen</h3><p>Ihr ladet zum ersten Treffen ein. Eure Stadt bekommt eine eigene Seite mit Treffpunkt, Terminen und Kanälen.</p></li>
+    </ol>
+    <p style="margin-top:14px">{PH("Ablauf mit Team abstimmen")}</p>
+  </div>
+</section>
+
+{cta_band(base)}'''
+
+
+def p_staedte(base=''):
+    cards = ''.join(
+        f'<a href="{base}staedte/{c["id"]}.html"><b>{c["n"]}</b><span class="n"><span data-count="{c["id"]}">{fmt(c["c"])}</span><span>dabei</span></span><small>{c["tp"]}</small></a>'
+        for c in ALPHA)
+    return f'''{page_head("Städte", "Wo wir schon sind.", f"In {len(CITIES)} Städten organisieren wir uns schon. Jede Stadt hat eine eigene Seite mit Treffpunkt, Terminen, Kanälen und Pressekontakt.")}
+
+<section class="section">
+  <div class="wrap overview">
+    <div class="mapcard on-dark">
+      <svg class="demap" data-map="all" viewBox="0 0 520 680" role="group" aria-label="Deutschlandkarte, Städte führen zur jeweiligen Stadtseite"></svg>
+      <div class="maplegend"><span><i class="sq own"></i>Tipp auf eine Stadt, um ihre Seite zu öffnen</span>{PH("Orte symbolisch", True)}</div>
+    </div>
+    <div style="display:grid;gap:16px;min-width:0">
+      <div class="city-cards">{cards}</div>
+      <p class="missing" style="color:var(--muted)">Deine Stadt fehlt? <a href="{base}mitmachen.html#gruenden" style="color:var(--ink)">Gründe eine Gruppe.</a></p>
+    </div>
+  </div>
+</section>
+
+{cta_band(base)}'''
+
+
+def p_city(c, base='../'):
+    crumbs = f'<p class="crumbs"><a href="{base}staedte.html">Städte</a><span aria-hidden="true">/</span><span>{c["n"]}</span></p>'
+    others = ''.join(f'<a href="{o["id"]}.html">{o["n"]}</a>' for o in ALPHA if o['id'] != c['id'])
+    return f'''<section class="page-head">
+  <div class="wrap">
+    {crumbs}
+    <span class="tag" style="margin-top:14px">#WirStehenZusammen {c["n"]}</span>
+    <h1>{c["n"]} steht zusammen.</h1>
+    <div class="city-stats">
+      <div><div class="big" data-count="{c["id"]}">{fmt(c["c"])}</div></div>
+      <div class="lbl">Versprechen<br>aus {c["n"]}</div>
+      {PH("Beispielzahl", True)}
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap city-main">
+    <div style="min-width:0">
+      <dl class="infolist" style="margin:0">
+        <div><dt>Nächste Aktion</dt><dd>[Datum, Zeit] {PH("Platzhalter")}</dd></div>
+        <div><dt>Treffpunkt</dt><dd>{c["tp"]}</dd></div>
+        <div><dt>Offenes Treffen</dt><dd>[Wochentag, Uhrzeit, Ort] {PH("Platzhalter")}</dd></div>
+        <div><dt>Kanäle</dt><dd><span class="chips-l"><a href="#kanal">Instagram @wsz_{c["id"]}</a><a href="#kanal">Telegram</a></span> {PH("Links folgen")}</dd></div>
+        <div><dt>Presse</dt><dd><span class="sel" id="press-{c["id"]}">presse-{c["id"]}@wirstehenzusammen.de</span> <button type="button" class="copy" data-copy="press-{c["id"]}">Kopieren</button> {PH("Beispieladresse")}</dd></div>
+      </dl>
+      <div class="minimap"><svg class="demap" data-map="focus" data-focus="{c["id"]}" viewBox="0 0 520 680" role="img" aria-label="Lage von {c["n"]} auf der Deutschlandkarte"></svg></div>
+    </div>
+    <div class="pledge-card on-dark">
+      <span class="tag hot" style="justify-self:start">Protestversprechen</span>
+      <h2>Bist du in {c["n"]} dabei?</h2>
+      <div id="city-pledge" data-city="{c["id"]}"></div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="sec-head"><h2 style="font-size:clamp(24px,3vw,32px)">Weitere Städte</h2></div>
+    <div class="other-cities">{others}</div>
+  </div>
+</section>'''
+
+
+def p_material(base=''):
+    return f'''{page_head("Material", "Zum Kopieren und Weitergeben.", "Flyer, Logo und Sharepics für eure Aktionen vor Ort. Druckt, verteilt und teilt so viel ihr könnt.")}
+
+<section class="section">
+  <div class="wrap">
+    <div class="mats" style="margin-top:0">
+      <article class="mat">
+        <div class="thumb">#WirStehen&shy;Zusammen</div>
+        <div>
+          <h3>Kampagnen-Flyer</h3>
+          <p>A4, Vorder- und Rückseite. Kopiervorlage mit Feld für euren lokalen Termin und QR-Code zum Telegram-Kanal.</p>
+          <div class="acts"><a class="btn btn-navy" href="{base}material/WSZ_Flyer.pdf">PDF öffnen</a>{PH("Datei auf Server ablegen")}</div>
+        </div>
+      </article>
+      <article class="mat">
+        <div class="thumb berry logo-thumb"><img src="{base}img/logo.webp" alt=""></div>
+        <div>
+          <h3>Logo &amp; Sharepics</h3>
+          <p>Das Kampagnenlogo als PNG und Vorlagen für Instagram-Posts und Storys. Einfach euren Ort und Termin eintragen und teilen.</p>
+          <div class="acts"><a class="btn btn-navy" href="{base}material/WSZ_Logo_Sharepics.zip">Paket öffnen</a>{PH("Sharepics folgen")}</div>
+        </div>
+      </article>
+      <article class="mat">
+        <div class="thumb" style="background:var(--hot)">Teaser</div>
+        <div>
+          <h3>Teaser-Video</h3>
+          <p>Der Kampagnen-Teaser zum Teilen, im Querformat und als Hochkant-Schnitt für Reels und Storys.</p>
+          <div class="acts"><a class="btn btn-navy" href="{base}worum-es-geht.html#teaser">Ansehen</a>{PH("Download folgt")}</div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+{cta_band(base, "Material verteilt? Dann gib auch dein Versprechen ab.")}'''
+
+
+def p_presse(base=''):
+    rows = ''.join(
+        f'<tr><td><a href="{base}staedte/{c["id"]}.html">{c["n"]}</a></td><td><span class="sel">presse-{c["id"]}@wirstehenzusammen.de</span></td></tr>'
+        for c in ALPHA)
+    return f'''{page_head("Presse", "Für Journalist*innen.", "Hier findet ihr unsere Ansprechpersonen, Pressemitteilungen und Fotos. Presseanfragen bitte per E-Mail.")}
+
+<section class="section">
+  <div class="wrap">
+    <div class="press-grid">
+      <div class="pcard">
+        <span class="tag navy" style="justify-self:start">Bundesweit</span>
+        <h3>Zentraler Pressekontakt</h3>
+        <p>[Name, Funktion] {PH("Platzhalter")}</p>
+        <p><span class="sel" id="press-main">presse@wirstehenzusammen.de</span> <button type="button" class="copy" data-copy="press-main">Kopieren</button></p>
+        <p>Telefon: [Nummer] {PH("Platzhalter")}</p>
+      </div>
+      <div class="pcard">
+        <span class="tag" style="justify-self:start">Downloads</span>
+        <h3>Pressemitteilungen &amp; Fotos</h3>
+        <p>Aktuelle Mitteilungen, Logo und honorarfreie Fotos von unseren Aktionen mit Bildnachweis.</p>
+        <p>{PH("Folgt")}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="sec-head"><span class="tag hot">Vor Ort</span><h2>Lokale Pressekontakte</h2><p>Für Berichte aus einer bestimmten Stadt wendet euch direkt an die Gruppe vor Ort. {PH("Beispieladressen")}</p></div>
+    <div class="tbl-wrap"><table class="contacts"><thead><tr><th>Stadt</th><th>E-Mail</th></tr></thead><tbody>{rows}</tbody></table></div>
+  </div>
+</section>'''
+
+
+def p_impressum(base=''):
+    return f'''{page_head("Rechtliches", "Impressum")}
+<section class="section"><div class="wrap prose">
+  <div class="todo"><p><strong>Platzhalter.</strong> Wird ausgefüllt, sobald die rechtliche Trägerschaft geklärt ist (Katja klärt mit Pascal, IGM).</p></div>
+  <h2>Angaben gemäß § 5 DDG</h2>
+  <p>[Name der Organisation bzw. verantwortlichen Person]<br>[Straße, Hausnummer]<br>[PLZ, Ort]</p>
+  <h3>Vertreten durch</h3><p>[Name]</p>
+  <h3>Kontakt</h3><p>E-Mail: kontakt@wirstehenzusammen.de<br>Telefon: [Nummer]</p>
+  <h2>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</h2>
+  <p>[Name, Anschrift]</p>
+  <h2>Haftung für Links</h2>
+  <p>Unsere Seiten verlinken auf Angebote lokaler Gruppen und Dritter. Für deren Inhalte sind die jeweiligen Anbieter verantwortlich. {PH("Text prüfen lassen")}</p>
+</div></section>'''
+
+
+def p_datenschutz(base=''):
+    return f'''{page_head("Rechtliches", "Datenschutz")}
+<section class="section"><div class="wrap prose">
+  <div class="todo"><p><strong>Platzhalter.</strong> Gliederung der Datenschutzerklärung. Der endgültige Text muss rechtlich geprüft werden, bevor das Versprechen-Formular live geht.</p></div>
+  <h2>1. Verantwortliche Stelle</h2><p>[Name, Anschrift, E-Mail]</p>
+  <h2>2. Hosting</h2><p>Die Website liegt auf einem eigenen Server bei [Anbieter, Standort Deutschland/EU]. Beim Aufruf werden technisch notwendige Daten (IP-Adresse, Zeitpunkt, aufgerufene Seite) in Server-Logs verarbeitet. [Speicherdauer]</p>
+  <h2>3. Schriften</h2><p>Die Seite lädt derzeit Schriften von Google Fonts. Vor dem Start sollten die Schriften lokal eingebunden werden, dann entfällt dieser Abschnitt.</p>
+  <h2>4. Protestversprechen</h2>
+  <p>Wenn du ein Versprechen abgibst, verarbeiten wir:</p>
+  <ul><li>Name und E-Mail-Adresse</li><li>gewählte Stadt</li><li>Bereich im öffentlichen Dienst (TVöD) und optional deinen Betrieb</li></ul>
+  <p>Zweck: dich zu Aktionen in deiner Stadt und deinem Bereich zu informieren und die Zahl der Zusagen pro Stadt anzuzeigen. Angezeigt wird nur die Anzahl, nie Namen.</p>
+  <p>Rechtsgrundlage: deine Einwilligung. Weil die Angaben Rückschlüsse auf politische Haltung und gewerkschaftliches Engagement zulassen können, ist zu prüfen, ob eine ausdrückliche Einwilligung nach Art. 9 Abs. 2 lit. a DSGVO nötig ist. {PH("Rechtlich prüfen")}</p>
+  <p>Speicherdauer: [z. B. bis zum Ende der Kampagne oder bis zum Widerruf]</p>
+  <p>Weitergabe: keine Weitergabe an Dritte. [Ggf. an die lokale Gruppe deiner Stadt – klären]</p>
+  <h2>5. Kontakt per E-Mail</h2><p>[Zweck, Rechtsgrundlage, Speicherdauer]</p>
+  <h2>6. Deine Rechte</h2><p>Auskunft, Berichtigung, Löschung, Einschränkung, Datenübertragbarkeit, Widerruf der Einwilligung und Beschwerde bei einer Aufsichtsbehörde. Schreib dafür an [E-Mail].</p>
+</div></section>'''
+
+# ---------- Build ----------
+
+def build():
+    for sub in ('staedte', 'css', 'js', 'img'):
+        os.makedirs(os.path.join(DIST, sub), exist_ok=True)
+    css = open(os.path.join(SRC, 'base.css')).read() + open(os.path.join(SRC, 'pages.css')).read()
+    js = open(os.path.join(SRC, 'wsz.js')).read()
+    data = '/* Städte – Beispieldaten. Neue Stadt: Eintrag in _quellen/build.py ergänzen und Script laufen lassen. */\nwindow.WSZ_CITIES=' + json.dumps(CITIES, ensure_ascii=False) + ';\n'
+    imgs = {'logo.webp': 'logo.webp', 'demo-blockade.jpg': 'crowd1.jpg', 'demo-verdi.jpg': 'crowd2.jpg'}
+    pages = [
+        ('index.html', 'Wir stehen zusammen', 'index.html', p_index, 'Bundesweite Kampagne: Streiks mit Protest gegen Sozialabbau verbinden. Gib dein Protestversprechen ab.'),
+        ('worum-es-geht.html', 'Worum es geht · Wir stehen zusammen', 'worum-es-geht.html', p_worum, 'Warum wir uns organisieren und wie wir Druck gegen Sozialabbau aufbauen.'),
+        ('mitmachen.html', 'Mitmachen · Wir stehen zusammen', 'mitmachen.html', p_mitmachen, 'Im Betrieb, im Kiez, im Bündnis: So machst du bei Wir stehen zusammen mit.'),
+        ('staedte.html', 'Städte · Wir stehen zusammen', 'staedte.html', p_staedte, 'Alle Städte, in denen Wir stehen zusammen aktiv ist.'),
+        ('material.html', 'Material · Wir stehen zusammen', 'material.html', p_material, 'Flyer, Logo, Sharepics und Teaser zum Weitergeben.'),
+        ('presse.html', 'Presse · Wir stehen zusammen', 'presse.html', p_presse, 'Pressekontakte bundesweit und vor Ort.'),
+        ('impressum.html', 'Impressum · Wir stehen zusammen', '', p_impressum, 'Impressum'),
+        ('datenschutz.html', 'Datenschutz · Wir stehen zusammen', '', p_datenschutz, 'Datenschutzerklärung'),
+    ]
+    open(os.path.join(DIST, 'css', 'wsz.css'), 'w').write(css)
+    open(os.path.join(DIST, 'js', 'wsz.js'), 'w').write(js)
+    open(os.path.join(DIST, 'js', 'staedte.js'), 'w').write(data)
+    for dst, srcname in imgs.items():
+        shutil.copy(os.path.join(IMG, srcname), os.path.join(DIST, 'img', dst))
+    for fn, title, active, fnc, desc in pages:
+        open(os.path.join(DIST, fn), 'w').write(shell(title, fnc(''), '', active, desc))
+    for c in CITIES:
+        out = shell(f'{c["n"]} · Wir stehen zusammen', p_city(c, '../'), '../', 'staedte.html',
+                    f'Wir stehen zusammen in {c["n"]}: Treffpunkt, Termine, Kanäle und Protestversprechen.')
+        open(os.path.join(DIST, 'staedte', c['id'] + '.html'), 'w').write(out)
+    print('ok', len(CITIES), 'Städte')
+
+if __name__ == '__main__':
+    build()
