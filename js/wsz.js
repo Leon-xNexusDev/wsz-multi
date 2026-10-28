@@ -181,14 +181,7 @@
     try{navigator.clipboard.writeText(txt).then(done,fb)}catch(x){fb()}
   });
 
-  /* ---------- Teaser ---------- */
-  var bg=document.getElementById('bgvid'), tv=document.getElementById('teaser-video');
-  var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(bg){
-    if(reduce){bg.removeAttribute('autoplay');try{bg.pause()}catch(x){}}
-    var s=bg.querySelector('source'); if(s)s.addEventListener('error',function(){bg.remove()});
-  }
-  if(tv&&location.hash==='#teaser'){setTimeout(function(){var p=tv.play();if(p&&p.catch)p.catch(function(){})},400)}
+  /* Teaser läuft als Vimeo-Einbettung (siehe build.py), kein Script nötig. */
 
   updateCounts();
 })();

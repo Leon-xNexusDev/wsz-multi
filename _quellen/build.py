@@ -124,9 +124,9 @@ def shell(title, body, base='', active='', desc='', artifact_main=False):
 def p_index(base=''):
     body = f'''<section class="hero">
   <div class="photo" style="background-image:url('{base}img/demo-blockade.jpg')" role="img" aria-label="Kampagnen-Teaser, läuft stumm im Hintergrund">
-    <video class="bgvid" id="bgvid" autoplay muted loop playsinline preload="metadata" aria-hidden="true" tabindex="-1"><source src="{base}media/teaser-loop.mp4" type="video/mp4"></video>
+    <iframe class="bgframe" src="https://player.vimeo.com/video/909677587?background=1&muted=1&loop=1&autoplay=1&autopause=0&dnt=1" title="Teaser im Hintergrund (stumm)" aria-hidden="true" tabindex="-1" allow="autoplay; fullscreen; picture-in-picture" loading="eager" referrerpolicy="strict-origin-when-cross-origin"></iframe>
     <a class="vid-cta" href="{base}worum-es-geht.html#teaser">{PLAY}Teaser mit Ton</a>
-    {PH("Platzhalter · Teaser läuft hier stumm", True).replace('class="ph dark"', 'class="ph dark vid-ph"')}
+    {PH("Übergangs-Video", True).replace('class="ph dark"', 'class="ph dark vid-ph"')}
   </div>
   <div class="bars">
     <div class="bar bar-1"><div class="wrap"><h1>Wir stehen zusammen.</h1></div></div>
@@ -226,8 +226,8 @@ def p_worum(base=''):
 <section class="teaser" id="teaser" aria-labelledby="teaser-h" style="padding-bottom:72px">
   <div class="wrap">
     <div class="t-head"><span class="tag hot">Teaser</span><h2 id="teaser-h">Jetzt mit Ton ansehen.</h2></div>
-    <div class="player"><video id="teaser-video" controls playsinline preload="none" poster="{base}img/demo-verdi.jpg"><source src="{base}media/teaser.mp4" type="video/mp4">Dein Browser kann das Video nicht abspielen.</video></div>
-    <p class="t-note">{PH("Platzhalter · Teaser-Datei folgt")} Länge ca. 30–60 Sekunden. Auf der Startseite läuft eine stumme Schleife davon.</p>
+    <div class="player"><iframe src="https://player.vimeo.com/video/909677587?dnt=1&title=0&byline=0&portrait=0&color=dd237d" title="Wir fahren zusammen – Wir streiken zusammen" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
+    <p class="t-note">{PH("Übergangs-Video")} Bis unser eigener Teaser fertig ist, zeigen wir hier „Wir fahren zusammen – Wir streiken zusammen“. Video über <a href="https://vimeo.com/909677587">Vimeo</a>.</p>
   </div>
 </section>
 
@@ -436,15 +436,16 @@ def p_datenschutz(base=''):
   <h2>1. Verantwortliche Stelle</h2><p>[Name, Anschrift, E-Mail]</p>
   <h2>2. Hosting</h2><p>Die Website liegt auf einem eigenen Server bei [Anbieter, Standort Deutschland/EU]. Beim Aufruf werden technisch notwendige Daten (IP-Adresse, Zeitpunkt, aufgerufene Seite) in Server-Logs verarbeitet. [Speicherdauer]</p>
   <h2>3. Schriften</h2><p>Die Seite lädt derzeit Schriften von Google Fonts. Vor dem Start sollten die Schriften lokal eingebunden werden, dann entfällt dieser Abschnitt.</p>
-  <h2>4. Protestversprechen</h2>
+  <h2>4. Eingebettete Videos (Vimeo)</h2><p>Auf der Startseite und auf „Worum es geht“ binden wir ein Video von Vimeo (Vimeo.com Inc., USA) ein. Beim Laden der Seite wird dabei eine Verbindung zu Vimeo hergestellt und deine IP-Adresse übertragen. Wir nutzen den Modus „Do Not Track“, damit Vimeo kein Tracking-Cookie setzt. {PH("Rechtlich prüfen: ggf. erst nach Klick laden")}</p>
+  <h2>5. Protestversprechen</h2>
   <p>Wenn du ein Versprechen abgibst, verarbeiten wir:</p>
   <ul><li>Name und E-Mail-Adresse</li><li>gewählte Stadt</li><li>Bereich im öffentlichen Dienst (TVöD) und optional deinen Betrieb</li></ul>
   <p>Zweck: dich zu Aktionen in deiner Stadt und deinem Bereich zu informieren und die Zahl der Zusagen pro Stadt anzuzeigen. Angezeigt wird nur die Anzahl, nie Namen.</p>
   <p>Rechtsgrundlage: deine Einwilligung. Weil die Angaben Rückschlüsse auf politische Haltung und gewerkschaftliches Engagement zulassen können, ist zu prüfen, ob eine ausdrückliche Einwilligung nach Art. 9 Abs. 2 lit. a DSGVO nötig ist. {PH("Rechtlich prüfen")}</p>
   <p>Speicherdauer: [z. B. bis zum Ende der Kampagne oder bis zum Widerruf]</p>
   <p>Weitergabe: keine Weitergabe an Dritte. [Ggf. an die lokale Gruppe deiner Stadt – klären]</p>
-  <h2>5. Kontakt per E-Mail</h2><p>[Zweck, Rechtsgrundlage, Speicherdauer]</p>
-  <h2>6. Deine Rechte</h2><p>Auskunft, Berichtigung, Löschung, Einschränkung, Datenübertragbarkeit, Widerruf der Einwilligung und Beschwerde bei einer Aufsichtsbehörde. Schreib dafür an [E-Mail].</p>
+  <h2>6. Kontakt per E-Mail</h2><p>[Zweck, Rechtsgrundlage, Speicherdauer]</p>
+  <h2>7. Deine Rechte</h2><p>Auskunft, Berichtigung, Löschung, Einschränkung, Datenübertragbarkeit, Widerruf der Einwilligung und Beschwerde bei einer Aufsichtsbehörde. Schreib dafür an [E-Mail].</p>
 </div></section>'''
 
 # ---------- Build ----------

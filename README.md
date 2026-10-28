@@ -19,7 +19,7 @@ python3 _quellen/build.py
 **Neue Stadt:** Eintrag in der Liste `CITIES` in `_quellen/build.py` ergänzen und das Script laufen lassen. Stadtseite, Kartenpunkt, Übersicht und Pressetabelle entstehen automatisch.
 
 ## Noch offen
-- `media/teaser-loop.mp4` (stumm, kurz, < 3 MB) und `media/teaser.mp4` (mit Ton)
+- Teaser: übergangsweise ist „Wir fahren zusammen – Wir streiken zusammen“ von Vimeo eingebettet (oben stumm als Hintergrund, unten mit Ton). Eigenes Video später per Vimeo-ID tauschen (`909677587`)
 - `material/WSZ_Flyer.pdf` und `material/WSZ_Logo_Sharepics.zip`
 - Telegram-Link eintragen
 - Versprechen speichern: `sendPledge()` in `_quellen/src/wsz.js` an den Server anbinden
