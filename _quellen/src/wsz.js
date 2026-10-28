@@ -59,6 +59,35 @@
     });
   });
 
+
+  /* ---------- Teilen ---------- */
+  function shareData(c,pledged){
+    var url=new URL(B+'staedte/'+c.id+'.html',location.href).href;
+    var text=pledged?'Ich bin beim Protest in '+c.n+' dabei. Bist du auch dabei?':'Wir stehen zusammen in '+c.n+'. Bist du dabei?';
+    return {url:url,text:text+' #WirStehenZusammen',title:c.n+' steht zusammen'};
+  }
+  function shareHTML(c,pledged,label){
+    var s=shareData(c,pledged), e=encodeURIComponent;
+    return '<div class="share-box">'+(label?'<p class="share-lbl">'+label+'</p>':'')+
+      '<div class="share-row">'+
+        (navigator.share?'<button type="button" class="sbtn" data-share-native="'+c.id+'" data-pledged="'+(pledged?1:0)+'">Teilen…</button>':'')+
+        '<a class="sbtn" href="https://wa.me/?text='+e(s.text+' '+s.url)+'" target="_blank" rel="noopener">WhatsApp</a>'+
+        '<a class="sbtn" href="https://t.me/share/url?url='+e(s.url)+'&text='+e(s.text)+'" target="_blank" rel="noopener">Telegram</a>'+
+        '<button type="button" class="sbtn" data-share-copy="'+c.id+'" data-pledged="'+(pledged?1:0)+'">Link kopieren</button>'+
+      '</div><span class="share-url sel" hidden>'+esc(s.url)+'</span></div>';
+  }
+  document.addEventListener('click',function(e){
+    var n=e.target.closest&&e.target.closest('[data-share-native]');
+    if(n){var c=byId[n.getAttribute('data-share-native')],s=shareData(c,n.getAttribute('data-pledged')==='1');navigator.share(s).catch(function(){});return}
+    var k=e.target.closest&&e.target.closest('[data-share-copy]');
+    if(k){var c2=byId[k.getAttribute('data-share-copy')],s2=shareData(c2,k.getAttribute('data-pledged')==='1'),box=k.closest('.share-box'),u=box.querySelector('.share-url');
+      var ok=function(){k.textContent='Kopiert ✓';setTimeout(function(){k.textContent='Link kopieren'},1600)};
+      var fb=function(){u.hidden=false;var r=document.createRange();r.selectNodeContents(u);var sel=getSelection();sel.removeAllRanges();sel.addRange(r)};
+      try{navigator.clipboard.writeText(s2.text+' '+s2.url).then(ok,fb)}catch(x){fb()}}
+  });
+  function renderShareSlots(){var sl=document.querySelectorAll('[data-share-city]');for(var i=0;i<sl.length;i++){var c=byId[sl[i].getAttribute('data-share-city')];sl[i].innerHTML=shareHTML(c,mine===c.id)}}
+  renderers.push(renderShareSlots);
+
   /* ---------- Karte ---------- */
   var DE=[[8.6,54.9],[9.9,54.8],[10.9,54.4],[11.1,54.0],[11.7,54.15],[12.4,54.45],[13.4,54.65],[13.9,54.2],[14.2,53.9],[14.4,53.3],[14.1,52.8],[14.6,52.6],[14.7,51.6],[15.0,51.1],[14.6,50.9],[13.6,50.7],[12.9,50.4],[12.1,50.3],[12.5,49.9],[12.9,49.4],[13.8,48.8],[13.4,48.6],[13.0,48.3],[12.8,47.7],[13.0,47.5],[12.2,47.6],[11.1,47.4],[10.5,47.5],[9.6,47.5],[8.6,47.7],[7.6,47.6],[7.6,48.1],[8.2,48.97],[7.0,49.1],[6.4,49.5],[6.2,49.9],[6.4,50.3],[6.0,50.8],[5.9,51.1],[6.2,51.4],[5.95,51.8],[6.8,51.9],[7.05,52.3],[6.7,52.5],[7.1,52.9],[7.2,53.3],[8.0,53.6],[8.5,53.5],[8.9,53.9],[8.6,54.3]];
   var K=Math.cos(51*Math.PI/180), BOX=[24,20,472,640], NS='http://www.w3.org/2000/svg';
@@ -109,6 +138,7 @@
         if(openForm===c.id&&!isMine){h+=formHTML(c,{cancel:true})}
         else{
           if(isMine&&thanks[c.id])h+='<span class="note">Danke, '+esc(thanks[c.id])+'! Dein Versprechen für '+c.n+' zählt. Wir melden uns per E-Mail.</span>';
+          if(isMine)h+=shareHTML(c,true,'Sag es weiter. Jede Zusage macht '+c.n+' lauter:');
           h+='<span class="meta">Nächste Aktion: [Datum, Zeit] <span class="ph dark">Platzhalter</span></span>'+
              '<a class="to-city" href="'+cityUrl(c.id)+'">Zur Stadtseite '+c.n+' →</a>';
         }
@@ -158,7 +188,7 @@
       if(mine===cid){
         cp.innerHTML='<div class="done"><span class="badge">Du bist dabei ✓</span>'+
           (thanks[cid]?'<p>Danke, '+esc(thanks[cid])+'! Dein Versprechen für '+cc.n+' zählt. Wir melden uns per E-Mail, sobald es losgeht.</p>':'<p>Du hast für '+cc.n+' zugesagt. Wir melden uns per E-Mail, sobald es losgeht.</p>')+
-          '<p>Erzähl es deinen Kolleg*innen. Jede Zusage macht '+cc.n+' lauter.</p></div>';
+          shareHTML(cc,true,'Erzähl es deinen Kolleg*innen. Jede Zusage macht '+cc.n+' lauter:')+'</div>';
       } else cp.innerHTML=formHTML(cc,{noTitle:true});
     };
     renderers.push(renderCity); renderCity();
@@ -183,6 +213,7 @@
 
   /* Teaser läuft als Vimeo-Einbettung (siehe build.py), kein Script nötig. */
 
+  renderShareSlots();
   updateCounts();
 })();
 

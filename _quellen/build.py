@@ -11,6 +11,13 @@ DIST = os.path.dirname(ROOT)
 ART = os.path.join(ROOT, 'artifact')
 IMG = os.path.join(SRC, 'img')
 
+# Öffentliche Adresse der Seite – für Linkvorschauen nötig (muss absolut sein).
+# Bei eigener Domain hier ändern, z. B. 'https://wirstehenzusammen.de/'
+SITE_URL = 'https://leon-xnexusdev.github.io/wsz-multi/'
+
+sys.path.insert(0, ROOT)
+from og import make_og
+
 # ---------- Städte (Beispieldaten) ----------
 CITIES = [
     dict(id='dresden', n='Dresden', lon=13.74, lat=51.05, tp='Theaterplatz', c=1840, side='r'),
@@ -85,9 +92,23 @@ def page_head(tag, title, lead='', crumbs=''):
 </section>'''
 
 
-def shell(title, body, base='', active='', desc='', artifact_main=False):
+def shell(title, body, base='', active='', desc='', artifact_main=False, path='index.html', og='og/start.png', og_title=None):
+    og_title = og_title or title
+    page_url = SITE_URL + ('' if path == 'index.html' else path)
     head = f'''<title>{title}</title>
 <meta name="description" content="{desc}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Wir stehen zusammen">
+<meta property="og:locale" content="de_DE">
+<meta property="og:title" content="{og_title}">
+<meta property="og:description" content="{desc}">
+<meta property="og:url" content="{page_url}">
+<meta property="og:image" content="{SITE_URL}{og}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="{og_title} – #WirStehenZusammen">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="{page_url}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@500;600;700;800&family=Figtree:wght@400;500;600;700&display=swap">
@@ -330,6 +351,7 @@ def p_city(c, base='../'):
         <div><dt>Treffpunkt</dt><dd>{c["tp"]}</dd></div>
         <div><dt>Offenes Treffen</dt><dd>[Wochentag, Uhrzeit, Ort] {PH("Platzhalter")}</dd></div>
         <div><dt>Kanäle</dt><dd><span class="chips-l"><a href="#kanal">Instagram @wsz_{c["id"]}</a><a href="#kanal">Telegram</a></span> {PH("Links folgen")}</dd></div>
+        <div><dt>Teilen</dt><dd><div class="share" data-share-city="{c["id"]}"></div></dd></div>
         <div><dt>Presse</dt><dd><span class="sel" id="press-{c["id"]}">presse-{c["id"]}@wirstehenzusammen.de</span> <button type="button" class="copy" data-copy="press-{c["id"]}">Kopieren</button> {PH("Beispieladresse")}</dd></div>
       </dl>
       <div class="minimap"><svg class="demap" data-map="focus" data-focus="{c["id"]}" viewBox="0 0 520 680" role="img" aria-label="Lage von {c["n"]} auf der Deutschlandkarte"></svg></div>
@@ -479,11 +501,15 @@ def build():
     open(os.path.join(DIST, 'js', 'staedte.js'), 'w').write(data)
     for dst, srcname in imgs.items():
         shutil.copy(os.path.join(IMG, srcname), os.path.join(DIST, 'img', dst))
+    os.makedirs(os.path.join(DIST, 'og'), exist_ok=True)
+    make_og(os.path.join(DIST, 'og', 'start.png'), 'Wir stehen zusammen.', 'SOZIALSTAAT VERTEIDIGEN.', 'Gib dein Protestversprechen ab')
     for fn, title, active, fnc, desc in pages:
-        open(os.path.join(DIST, fn), 'w').write(shell(title, fnc(''), '', active, desc))
+        open(os.path.join(DIST, fn), 'w').write(shell(title, fnc(''), '', active, desc, path=fn))
     for c in CITIES:
+        make_og(os.path.join(DIST, 'og', c['id'] + '.png'), f'{c["n"]} steht zusammen.', 'BIST DU DABEI?', 'Jetzt zusagen')
         out = shell(f'{c["n"]} · Wir stehen zusammen', p_city(c, '../'), '../', 'staedte.html',
-                    f'Wir stehen zusammen in {c["n"]}: Treffpunkt, Termine, Kanäle und Protestversprechen.')
+                    f'Wir stehen zusammen in {c["n"]}: Treffpunkt, Termine, Kanäle und Protestversprechen. Bist du dabei?',
+                    path=f'staedte/{c["id"]}.html', og=f'og/{c["id"]}.png', og_title=f'{c["n"]} steht zusammen. Bist du dabei?')
         open(os.path.join(DIST, 'staedte', c['id'] + '.html'), 'w').write(out)
     print('ok', len(CITIES), 'Städte')
 
