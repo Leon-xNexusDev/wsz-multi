@@ -69,11 +69,11 @@
   function shareHTML(c,pledged,label){
     var s=shareData(c,pledged), e=encodeURIComponent;
     return '<div class="share-box">'+(label?'<p class="share-lbl">'+label+'</p>':'')+
+      (navigator.share?'<button type="button" class="share-main" data-share-native="'+c.id+'" data-pledged="'+(pledged?1:0)+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"/><path d="M7 8l5-5 5 5"/><path d="M5 13v7h14v-7"/></svg>Weitersagen</button>':'')+
       '<div class="share-row">'+
-        (navigator.share?'<button type="button" class="sbtn" data-share-native="'+c.id+'" data-pledged="'+(pledged?1:0)+'">Teilen…</button>':'')+
-        '<a class="sbtn" href="https://wa.me/?text='+e(s.text+' '+s.url)+'" target="_blank" rel="noopener">WhatsApp</a>'+
-        '<a class="sbtn" href="https://t.me/share/url?url='+e(s.url)+'&text='+e(s.text)+'" target="_blank" rel="noopener">Telegram</a>'+
-        '<button type="button" class="sbtn" data-share-copy="'+c.id+'" data-pledged="'+(pledged?1:0)+'">Link kopieren</button>'+
+        '<a class="sbtn" href="https://wa.me/?text='+e(s.text+' '+s.url)+'" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg><span>WhatsApp</span></a>'+
+        '<a class="sbtn" href="https://t.me/share/url?url='+e(s.url)+'&text='+e(s.text)+'" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l18-8-7 18-3-7z"/></svg><span>Telegram</span></a>'+
+        '<button type="button" class="sbtn" data-share-copy="'+c.id+'" data-pledged="'+(pledged?1:0)+'" title="Link kopieren"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><span>Link kopieren</span></button>'+
       '</div><span class="share-url sel" hidden>'+esc(s.url)+'</span></div>';
   }
   document.addEventListener('click',function(e){
@@ -81,7 +81,7 @@
     if(n){var c=byId[n.getAttribute('data-share-native')],s=shareData(c,n.getAttribute('data-pledged')==='1');navigator.share(s).catch(function(){});return}
     var k=e.target.closest&&e.target.closest('[data-share-copy]');
     if(k){var c2=byId[k.getAttribute('data-share-copy')],s2=shareData(c2,k.getAttribute('data-pledged')==='1'),box=k.closest('.share-box'),u=box.querySelector('.share-url');
-      var ok=function(){k.textContent='Kopiert ✓';setTimeout(function(){k.textContent='Link kopieren'},1600)};
+      var sp=k.querySelector('span'),ok=function(){sp.textContent='Kopiert ✓';setTimeout(function(){sp.textContent='Link kopieren'},1600)};
       var fb=function(){u.hidden=false;var r=document.createRange();r.selectNodeContents(u);var sel=getSelection();sel.removeAllRanges();sel.addRange(r)};
       try{navigator.clipboard.writeText(s2.text+' '+s2.url).then(ok,fb)}catch(x){fb()}}
   });

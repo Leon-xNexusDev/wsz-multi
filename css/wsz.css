@@ -389,13 +389,19 @@ ol.steps3{margin:0;padding:0}
 .linkbtn:hover{text-decoration:underline}
 
 /* ===== Teilen ===== */
-.share-box{display:grid;gap:10px;min-width:0}
-.share-lbl{font-size:14px;font-weight:600}
-.share-row{display:flex;flex-wrap:wrap;gap:8px}
-.sbtn{font-family:var(--display);font-weight:700;font-size:15px;line-height:1;padding:10px 13px 8px;border:2px solid currentColor;background:transparent;color:inherit;cursor:pointer;text-decoration:none;white-space:nowrap}
-.sbtn:hover{background:var(--hot);border-color:var(--hot);color:#fff}
-.share-url{font-size:13px;overflow-wrap:anywhere}
-.ci .share-box{margin-top:4px}
-.ci .share-lbl,.done .share-lbl{color:#d7dbf5}
-.infolist .share-box{width:100%}
-.infolist .sbtn{font-size:14px;padding:8px 11px 6px;border-width:1.5px}
+.share-box{display:grid;gap:10px;min-width:0;background:rgba(0,0,0,.2);padding:16px}
+.share-lbl{font-size:15px;font-weight:600;color:#fff}
+.share-main{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;font-family:var(--display);font-weight:800;font-size:18px;line-height:1;padding:15px 16px 13px;background:var(--hot);color:#fff;border:0;cursor:pointer}
+.share-main:hover{background:var(--berry)}
+.share-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.sbtn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;min-width:0;font-family:var(--display);font-weight:700;font-size:14px;line-height:1.1;padding:12px 6px 10px;background:#fff;color:var(--navy);border:0;cursor:pointer;text-decoration:none;text-align:center}
+.sbtn span{overflow-wrap:anywhere}
+.sbtn:hover{background:var(--hot);color:#fff}
+.share-main svg,.sbtn svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.share-url{font-size:13px;overflow-wrap:anywhere;color:#fff}
+/* auf hellem Grund (Infoliste der Stadtseite) */
+.infolist .share-box{width:100%;max-width:360px;background:transparent;padding:0}
+.infolist .sbtn{background:var(--navy);color:#fff}
+.infolist .sbtn:hover{background:var(--hot)}
+.infolist .share-url{color:var(--ink)}
+@media (max-width:420px){.sbtn{font-size:13px;padding:11px 4px 9px}}
