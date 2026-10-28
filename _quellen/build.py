@@ -65,7 +65,7 @@ def footer(base):
     return f'''<footer>
   <div class="wrap">
     <span>© 2026 Wir stehen zusammen · <span class="sel" id="foot-mail">kontakt@wirstehenzusammen.de</span> <button type="button" class="copy" data-copy="foot-mail" style="color:#fff;border-color:rgba(255,255,255,.35)">Kopieren</button> {PH("Adresse Platzhalter", True)}</span>
-    <nav aria-label="Weitere Seiten"><a href="{base}material.html">Material</a><a href="{base}presse.html">Presse</a><a href="{base}impressum.html">Impressum</a><a href="{base}datenschutz.html">Datenschutz</a></nav>
+    <nav aria-label="Weitere Seiten"><a href="{base}material.html">Material</a><a href="{base}presse.html">Presse</a><a href="{base}impressum.html">Impressum</a><a href="{base}datenschutz.html">Datenschutz</a><button type="button" class="linkbtn" data-consent-open>Video-Einstellungen</button></nav>
   </div>
 </footer>'''
 
@@ -98,6 +98,13 @@ def shell(title, body, base='', active='', desc='', artifact_main=False):
 {body}
 </main>
 {footer(base)}
+<div class="consent" id="consent" hidden>
+  <div class="box" role="dialog" aria-labelledby="consent-h" aria-describedby="consent-p">
+    <h2 id="consent-h">Videos von Vimeo laden?</h2>
+    <p id="consent-p">Wir zeigen unseren Teaser über Vimeo. Wenn du zustimmst, wird er geladen und dabei werden Daten wie deine IP-Adresse an Vimeo (USA) übertragen. Ohne Zustimmung siehst du ein Bild und kannst das Video später per Klick starten. <a href="{base}datenschutz.html#videos">Mehr dazu</a></p>
+    <div class="acts"><button type="button" class="yes" data-consent="yes">Videos erlauben</button><button type="button" class="no" data-consent="no">Ablehnen</button></div>
+  </div>
+</div>
 <script src="{base}js/staedte.js"></script>
 <script src="{base}js/wsz.js"></script>'''
     if artifact_main:
@@ -124,7 +131,7 @@ def shell(title, body, base='', active='', desc='', artifact_main=False):
 def p_index(base=''):
     body = f'''<section class="hero">
   <div class="photo" style="background-image:url('{base}img/demo-blockade.jpg')" role="img" aria-label="Kampagnen-Teaser, läuft stumm im Hintergrund">
-    <iframe class="bgframe" src="https://player.vimeo.com/video/909677587?background=1&muted=1&loop=1&autoplay=1&autopause=0&dnt=1" title="Teaser im Hintergrund (stumm)" aria-hidden="true" tabindex="-1" allow="autoplay; fullscreen; picture-in-picture" loading="eager" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+    <div class="bgslot" data-vimeo-bg="909677587" aria-hidden="true"></div>
     <a class="vid-cta" href="{base}worum-es-geht.html#teaser">{PLAY}Teaser mit Ton</a>
     {PH("Übergangs-Video", True).replace('class="ph dark"', 'class="ph dark vid-ph"')}
   </div>
@@ -226,7 +233,7 @@ def p_worum(base=''):
 <section class="teaser" id="teaser" aria-labelledby="teaser-h" style="padding-bottom:72px">
   <div class="wrap">
     <div class="t-head"><span class="tag hot">Teaser</span><h2 id="teaser-h">Jetzt mit Ton ansehen.</h2></div>
-    <div class="player"><iframe src="https://player.vimeo.com/video/909677587?dnt=1&title=0&byline=0&portrait=0&color=dd237d" title="Wir fahren zusammen – Wir streiken zusammen" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
+    <div class="player" data-vimeo="909677587" style="background-image:url('{base}img/demo-verdi.jpg')"><button type="button" class="vplay"><span class="pbtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4l14 8-14 8z" fill="#fff"/></svg></span><b>Video abspielen</b><small>Mit dem Klick lädst du das Video von Vimeo. Dabei werden Daten an Vimeo (USA) übertragen.</small></button></div>
     <p class="t-note">{PH("Übergangs-Video")} Bis unser eigener Teaser fertig ist, zeigen wir hier „Wir fahren zusammen – Wir streiken zusammen“. Video über <a href="https://vimeo.com/909677587">Vimeo</a>.</p>
   </div>
 </section>
@@ -436,7 +443,7 @@ def p_datenschutz(base=''):
   <h2>1. Verantwortliche Stelle</h2><p>[Name, Anschrift, E-Mail]</p>
   <h2>2. Hosting</h2><p>Die Website liegt auf einem eigenen Server bei [Anbieter, Standort Deutschland/EU]. Beim Aufruf werden technisch notwendige Daten (IP-Adresse, Zeitpunkt, aufgerufene Seite) in Server-Logs verarbeitet. [Speicherdauer]</p>
   <h2>3. Schriften</h2><p>Die Seite lädt derzeit Schriften von Google Fonts. Vor dem Start sollten die Schriften lokal eingebunden werden, dann entfällt dieser Abschnitt.</p>
-  <h2>4. Eingebettete Videos (Vimeo)</h2><p>Auf der Startseite und auf „Worum es geht“ binden wir ein Video von Vimeo (Vimeo.com Inc., USA) ein. Beim Laden der Seite wird dabei eine Verbindung zu Vimeo hergestellt und deine IP-Adresse übertragen. Wir nutzen den Modus „Do Not Track“, damit Vimeo kein Tracking-Cookie setzt. {PH("Rechtlich prüfen: ggf. erst nach Klick laden")}</p>
+  <h2 id="videos">4. Eingebettete Videos (Vimeo)</h2><p>Auf der Startseite und auf „Worum es geht“ zeigen wir ein Video von Vimeo (Vimeo.com Inc., USA). Es wird erst geladen, wenn du im Hinweis „Videos erlauben“ wählst oder auf „Video abspielen“ klickst. Erst dann wird eine Verbindung zu Vimeo hergestellt und deine IP-Adresse übertragen. Wir nutzen den Modus „Do Not Track“. Rechtsgrundlage ist deine Einwilligung (Art. 6 Abs. 1 lit. a DSGVO, § 25 Abs. 1 TDDDG). Deine Auswahl speichern wir nur in deinem Browser. Du kannst sie jederzeit über „Video-Einstellungen“ unten auf jeder Seite ändern. {PH("Rechtlich prüfen")}</p>
   <h2>5. Protestversprechen</h2>
   <p>Wenn du ein Versprechen abgibst, verarbeiten wir:</p>
   <ul><li>Name und E-Mail-Adresse</li><li>gewählte Stadt</li><li>Bereich im öffentlichen Dienst (TVöD) und optional deinen Betrieb</li></ul>
@@ -456,7 +463,7 @@ def build():
     css = open(os.path.join(SRC, 'base.css')).read() + open(os.path.join(SRC, 'pages.css')).read()
     js = open(os.path.join(SRC, 'wsz.js')).read()
     data = '/* Städte – Beispieldaten. Neue Stadt: Eintrag in _quellen/build.py ergänzen und Script laufen lassen. */\nwindow.WSZ_CITIES=' + json.dumps(CITIES, ensure_ascii=False) + ';\n'
-    imgs = {'logo.webp': 'logo.webp', 'demo-blockade.jpg': 'crowd1.jpg', 'demo-verdi.jpg': 'crowd2.jpg'}
+    imgs = {'logo.webp': 'logo.webp', 'demo-blockade.jpg': 'crowd2.jpg', 'demo-verdi.jpg': 'crowd1.jpg'}
     pages = [
         ('index.html', 'Wir stehen zusammen', 'index.html', p_index, 'Bundesweite Kampagne: Streiks mit Protest gegen Sozialabbau verbinden. Gib dein Protestversprechen ab.'),
         ('worum-es-geht.html', 'Worum es geht · Wir stehen zusammen', 'worum-es-geht.html', p_worum, 'Warum wir uns organisieren und wie wir Druck gegen Sozialabbau aufbauen.'),

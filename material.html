@@ -66,9 +66,16 @@
 <footer>
   <div class="wrap">
     <span>© 2026 Wir stehen zusammen · <span class="sel" id="foot-mail">kontakt@wirstehenzusammen.de</span> <button type="button" class="copy" data-copy="foot-mail" style="color:#fff;border-color:rgba(255,255,255,.35)">Kopieren</button> <span class="ph dark">Adresse Platzhalter</span></span>
-    <nav aria-label="Weitere Seiten"><a href="material.html">Material</a><a href="presse.html">Presse</a><a href="impressum.html">Impressum</a><a href="datenschutz.html">Datenschutz</a></nav>
+    <nav aria-label="Weitere Seiten"><a href="material.html">Material</a><a href="presse.html">Presse</a><a href="impressum.html">Impressum</a><a href="datenschutz.html">Datenschutz</a><button type="button" class="linkbtn" data-consent-open>Video-Einstellungen</button></nav>
   </div>
 </footer>
+<div class="consent" id="consent" hidden>
+  <div class="box" role="dialog" aria-labelledby="consent-h" aria-describedby="consent-p">
+    <h2 id="consent-h">Videos von Vimeo laden?</h2>
+    <p id="consent-p">Wir zeigen unseren Teaser über Vimeo. Wenn du zustimmst, wird er geladen und dabei werden Daten wie deine IP-Adresse an Vimeo (USA) übertragen. Ohne Zustimmung siehst du ein Bild und kannst das Video später per Klick starten. <a href="datenschutz.html#videos">Mehr dazu</a></p>
+    <div class="acts"><button type="button" class="yes" data-consent="yes">Videos erlauben</button><button type="button" class="no" data-consent="no">Ablehnen</button></div>
+  </div>
+</div>
 <script src="js/staedte.js"></script>
 <script src="js/wsz.js"></script>
 </body>

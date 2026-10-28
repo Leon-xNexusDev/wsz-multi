@@ -34,7 +34,7 @@
   <h2>1. Verantwortliche Stelle</h2><p>[Name, Anschrift, E-Mail]</p>
   <h2>2. Hosting</h2><p>Die Website liegt auf einem eigenen Server bei [Anbieter, Standort Deutschland/EU]. Beim Aufruf werden technisch notwendige Daten (IP-Adresse, Zeitpunkt, aufgerufene Seite) in Server-Logs verarbeitet. [Speicherdauer]</p>
   <h2>3. Schriften</h2><p>Die Seite lädt derzeit Schriften von Google Fonts. Vor dem Start sollten die Schriften lokal eingebunden werden, dann entfällt dieser Abschnitt.</p>
-  <h2>4. Eingebettete Videos (Vimeo)</h2><p>Auf der Startseite und auf „Worum es geht“ binden wir ein Video von Vimeo (Vimeo.com Inc., USA) ein. Beim Laden der Seite wird dabei eine Verbindung zu Vimeo hergestellt und deine IP-Adresse übertragen. Wir nutzen den Modus „Do Not Track“, damit Vimeo kein Tracking-Cookie setzt. <span class="ph">Rechtlich prüfen: ggf. erst nach Klick laden</span></p>
+  <h2 id="videos">4. Eingebettete Videos (Vimeo)</h2><p>Auf der Startseite und auf „Worum es geht“ zeigen wir ein Video von Vimeo (Vimeo.com Inc., USA). Es wird erst geladen, wenn du im Hinweis „Videos erlauben“ wählst oder auf „Video abspielen“ klickst. Erst dann wird eine Verbindung zu Vimeo hergestellt und deine IP-Adresse übertragen. Wir nutzen den Modus „Do Not Track“. Rechtsgrundlage ist deine Einwilligung (Art. 6 Abs. 1 lit. a DSGVO, § 25 Abs. 1 TDDDG). Deine Auswahl speichern wir nur in deinem Browser. Du kannst sie jederzeit über „Video-Einstellungen“ unten auf jeder Seite ändern. <span class="ph">Rechtlich prüfen</span></p>
   <h2>5. Protestversprechen</h2>
   <p>Wenn du ein Versprechen abgibst, verarbeiten wir:</p>
   <ul><li>Name und E-Mail-Adresse</li><li>gewählte Stadt</li><li>Bereich im öffentlichen Dienst (TVöD) und optional deinen Betrieb</li></ul>
@@ -49,9 +49,16 @@
 <footer>
   <div class="wrap">
     <span>© 2026 Wir stehen zusammen · <span class="sel" id="foot-mail">kontakt@wirstehenzusammen.de</span> <button type="button" class="copy" data-copy="foot-mail" style="color:#fff;border-color:rgba(255,255,255,.35)">Kopieren</button> <span class="ph dark">Adresse Platzhalter</span></span>
-    <nav aria-label="Weitere Seiten"><a href="material.html">Material</a><a href="presse.html">Presse</a><a href="impressum.html">Impressum</a><a href="datenschutz.html">Datenschutz</a></nav>
+    <nav aria-label="Weitere Seiten"><a href="material.html">Material</a><a href="presse.html">Presse</a><a href="impressum.html">Impressum</a><a href="datenschutz.html">Datenschutz</a><button type="button" class="linkbtn" data-consent-open>Video-Einstellungen</button></nav>
   </div>
 </footer>
+<div class="consent" id="consent" hidden>
+  <div class="box" role="dialog" aria-labelledby="consent-h" aria-describedby="consent-p">
+    <h2 id="consent-h">Videos von Vimeo laden?</h2>
+    <p id="consent-p">Wir zeigen unseren Teaser über Vimeo. Wenn du zustimmst, wird er geladen und dabei werden Daten wie deine IP-Adresse an Vimeo (USA) übertragen. Ohne Zustimmung siehst du ein Bild und kannst das Video später per Klick starten. <a href="datenschutz.html#videos">Mehr dazu</a></p>
+    <div class="acts"><button type="button" class="yes" data-consent="yes">Videos erlauben</button><button type="button" class="no" data-consent="no">Ablehnen</button></div>
+  </div>
+</div>
 <script src="js/staedte.js"></script>
 <script src="js/wsz.js"></script>
 </body>

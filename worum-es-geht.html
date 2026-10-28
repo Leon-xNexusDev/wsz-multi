@@ -61,7 +61,7 @@
 <section class="teaser" id="teaser" aria-labelledby="teaser-h" style="padding-bottom:72px">
   <div class="wrap">
     <div class="t-head"><span class="tag hot">Teaser</span><h2 id="teaser-h">Jetzt mit Ton ansehen.</h2></div>
-    <div class="player"><iframe src="https://player.vimeo.com/video/909677587?dnt=1&title=0&byline=0&portrait=0&color=dd237d" title="Wir fahren zusammen – Wir streiken zusammen" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
+    <div class="player" data-vimeo="909677587" style="background-image:url('img/demo-verdi.jpg')"><button type="button" class="vplay"><span class="pbtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4l14 8-14 8z" fill="#fff"/></svg></span><b>Video abspielen</b><small>Mit dem Klick lädst du das Video von Vimeo. Dabei werden Daten an Vimeo (USA) übertragen.</small></button></div>
     <p class="t-note"><span class="ph">Übergangs-Video</span> Bis unser eigener Teaser fertig ist, zeigen wir hier „Wir fahren zusammen – Wir streiken zusammen“. Video über <a href="https://vimeo.com/909677587">Vimeo</a>.</p>
   </div>
 </section>
@@ -71,9 +71,16 @@
 <footer>
   <div class="wrap">
     <span>© 2026 Wir stehen zusammen · <span class="sel" id="foot-mail">kontakt@wirstehenzusammen.de</span> <button type="button" class="copy" data-copy="foot-mail" style="color:#fff;border-color:rgba(255,255,255,.35)">Kopieren</button> <span class="ph dark">Adresse Platzhalter</span></span>
-    <nav aria-label="Weitere Seiten"><a href="material.html">Material</a><a href="presse.html">Presse</a><a href="impressum.html">Impressum</a><a href="datenschutz.html">Datenschutz</a></nav>
+    <nav aria-label="Weitere Seiten"><a href="material.html">Material</a><a href="presse.html">Presse</a><a href="impressum.html">Impressum</a><a href="datenschutz.html">Datenschutz</a><button type="button" class="linkbtn" data-consent-open>Video-Einstellungen</button></nav>
   </div>
 </footer>
+<div class="consent" id="consent" hidden>
+  <div class="box" role="dialog" aria-labelledby="consent-h" aria-describedby="consent-p">
+    <h2 id="consent-h">Videos von Vimeo laden?</h2>
+    <p id="consent-p">Wir zeigen unseren Teaser über Vimeo. Wenn du zustimmst, wird er geladen und dabei werden Daten wie deine IP-Adresse an Vimeo (USA) übertragen. Ohne Zustimmung siehst du ein Bild und kannst das Video später per Klick starten. <a href="datenschutz.html#videos">Mehr dazu</a></p>
+    <div class="acts"><button type="button" class="yes" data-consent="yes">Videos erlauben</button><button type="button" class="no" data-consent="no">Ablehnen</button></div>
+  </div>
+</div>
 <script src="js/staedte.js"></script>
 <script src="js/wsz.js"></script>
 </body>

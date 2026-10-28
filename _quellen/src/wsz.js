@@ -185,3 +185,33 @@
 
   updateCounts();
 })();
+
+/* ---------- Videos: Vimeo erst nach Einwilligung ---------- */
+(function(){
+  var KEY='wsz-consent-vimeo', bgSlot=document.querySelector('[data-vimeo-bg]'), players=document.querySelectorAll('[data-vimeo]'), banner=document.getElementById('consent');
+  var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function get(){try{return localStorage.getItem(KEY)}catch(e){return null}}
+  function set(v){try{localStorage.setItem(KEY,v)}catch(e){}}
+  function frame(id,bg,auto){
+    var f=document.createElement('iframe');
+    f.src='https://player.vimeo.com/video/'+id+'?dnt=1'+(bg?'&background=1&muted=1&loop=1&autoplay=1&autopause=0':'&title=0&byline=0&portrait=0&color=dd237d'+(auto?'&autoplay=1':''));
+    f.title=bg?'Teaser im Hintergrund (stumm)':'Teaser-Video';
+    f.setAttribute('allow','autoplay; fullscreen; picture-in-picture');
+    f.setAttribute('allowfullscreen','');
+    f.setAttribute('referrerpolicy','strict-origin-when-cross-origin');
+    if(bg){f.className='bgframe';f.setAttribute('aria-hidden','true');f.tabIndex=-1}
+    return f;
+  }
+  function loadBg(){if(bgSlot&&!reduce&&!bgSlot.firstChild)bgSlot.appendChild(frame(bgSlot.getAttribute('data-vimeo-bg'),true))}
+  function loadPlayer(p,auto){if(p.querySelector('iframe'))return;p.innerHTML='';p.appendChild(frame(p.getAttribute('data-vimeo'),false,auto))}
+  for(var i=0;i<players.length;i++)(function(p){var b=p.querySelector('.vplay');if(b)b.addEventListener('click',function(){loadPlayer(p,true)})})(players[i]);
+  function apply(){if(get()==='yes'){loadBg();for(var i=0;i<players.length;i++)loadPlayer(players[i],false)}}
+  function show(){if(banner){banner.hidden=false;var y=banner.querySelector('.yes');if(y)y.focus({preventScroll:true})}}
+  document.addEventListener('click',function(e){
+    var c=e.target.closest&&e.target.closest('[data-consent]');
+    if(c){var v=c.getAttribute('data-consent'),was=get();set(v);banner.hidden=true;if(v==='no'&&was==='yes')location.reload();else apply();return}
+    if(e.target.closest&&e.target.closest('[data-consent-open]'))show();
+  });
+  if(get()===null)show();
+  apply();
+})();
