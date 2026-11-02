@@ -477,3 +477,6 @@ a,button,input,select,label,summary,[role="link"]{touch-action:manipulation}
 @media (max-width:560px){.vid-stop{top:10px;font-size:12px;padding:6px 9px 5px}}
 .meet .card.berry p{color:#fff}
 .meet .card.berry .ph{background:rgba(26,35,80,.45);color:#fff;border-color:#fff}
+/* ===== Entwurfsansicht ===== */
+.draftbar{background:#f0de3a;color:#1a1f45;font-size:14px;font-weight:600;padding:8px max(16px,env(safe-area-inset-right,0px)) 8px max(16px,env(safe-area-inset-left,0px));text-align:center}
+.draftbar a{color:#1a1f45;font-weight:700}

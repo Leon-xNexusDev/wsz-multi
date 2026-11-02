@@ -32,3 +32,14 @@ python3 _quellen/build.py
 
 ## Schriften
 League Spartan (wie im Flyer) und Figtree liegen in `fonts/` (OFL-Lizenz). Es gibt keine Verbindung zu Google Fonts.
+
+## Öffentlich und Entwurf
+Der Build erzeugt zwei Fassungen:
+- **Repo-Root = öffentlich.** Nur echte Angaben: Städte aus `ECHT`, Zusagen ab 0 (Zahl erscheint erst ab 1), keine Platzhalter, keine Beispieladressen. Leere Felder werden einfach weggelassen.
+- **`entwurf/` = für das Team.** Alle Städte mit Beispieldaten und Platzhalter-Markierungen, gelbe Leiste oben, für Suchmaschinen gesperrt (`noindex`).
+
+Echte Angaben trägst du oben in `_quellen/build.py` ein:
+- `ECHT` – Städte, in denen es die Gruppe wirklich gibt
+- pro Stadt: `treffpunkt`, `aktion`, `treffen`, `instagram`, `telegram`, `presse`
+- `TELEGRAM_URL`, `KONTAKT_MAIL`, `PRESSE_MAIL`
+- Material erscheint öffentlich, sobald die Datei in `material/` liegt.

@@ -1,11 +1,12 @@
 /* WSZ – gemeinsames Script für alle Seiten.
-   Städte-Daten kommen aus staedte.js (window.WSZ_CITIES). Zahlen und Treffpunkte sind Beispieldaten.
+   Städte-Daten kommen aus staedte.js (window.WSZ_CITIES). Öffentlich: nur echte Städte, Zahlen ab 0. Entwurf: Beispieldaten.
    Versprechen werden in dieser Vorschau nur im eigenen Browser gezählt.
    Für den echten Betrieb: sendPledge() an euren Server anbinden (siehe unten). */
 (function(){
   'use strict';
   var C=(window.WSZ_CITIES||[]).map(function(c){var o={};for(var k in c)o[k]=c[k];return o});
   var B=document.documentElement.getAttribute('data-base')||'';
+  var DRAFT=document.documentElement.hasAttribute('data-entwurf');
   var byId={}; C.forEach(function(c){byId[c.id]=c});
   function fmt(n){return n.toLocaleString('de-DE')}
   function esc(s){return String(s).replace(/[&<>"]/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]})}
@@ -19,7 +20,7 @@
   function total(){return C.reduce(function(s,c){return s+c.c},0)}
   function updateCounts(){
     var els=document.querySelectorAll('[data-count]');
-    for(var i=0;i<els.length;i++){var id=els[i].getAttribute('data-count');els[i].textContent=id==='total'?fmt(total()):(byId[id]?fmt(byId[id].c):'')}
+    for(var i=0;i<els.length;i++){var id=els[i].getAttribute('data-count'),n=id==='total'?total():(byId[id]?byId[id].c:0);els[i].textContent=fmt(n);var w=els[i].closest('[data-zero-hide]');if(w)w.hidden=!n}
   }
   function rerender(){renderers.forEach(function(f){f()});updateCounts()}
 
@@ -134,21 +135,22 @@
       var isMine=c.id===mine;
       var h='<span class="rk">'+(i+1)+'</span><span class="nm">'+c.n+'</span>'+
         '<button type="button" class="go" data-go="'+c.id+'"'+(openForm===c.id?' aria-expanded="true"':'')+'>'+(isMine?'Du bist dabei ✓':'Ich bin dabei')+'</button>'+
-        '<span class="sub">'+c.tp+' · <b>'+fmt(c.c)+'</b> dabei</span>';
+        '<span class="sub">'+[c.tp?esc(c.tp):'',c.c?'<b>'+fmt(c.c)+'</b> dabei':''].filter(Boolean).join(' · ')+'</span>';
       if(c.id===sel){
         h+='<div class="detail">';
         if(openForm===c.id&&!isMine){h+=formHTML(c,{cancel:true})}
         else{
           if(isMine&&thanks[c.id])h+='<span class="note">Danke, '+esc(thanks[c.id])+'. Du bist für '+c.n+' eingetragen. Wir schreiben dir, wenn es losgeht.</span>';
           if(isMine)h+=shareHTML(c,true,'Schick es an deine Kolleg*innen:');
-          h+='<span class="meta">Nächste Aktion: [Datum, Zeit] <span class="ph dark">Platzhalter</span></span>'+
+          if(c.aktion)h+='<span class="meta">Nächste Aktion: '+esc(c.aktion)+'</span>';
+          h+=
              '<a class="to-city" href="'+cityUrl(c.id)+'">Stadtseite '+c.n+'</a>';
         }
         h+='</div>';
       }
       return h;
     };
-    var ranked=function(){return C.slice().sort(function(a,b){return b.c-a.c})};
+    var ranked=function(){return C.slice().sort(function(a,b){return b.c-a.c||a.n.localeCompare(b.n,'de')})};
     var render=function(){
       var q=search.value.trim().toLowerCase(), R=ranked();
       var rows=R.map(function(c,i){return {c:c,i:i}}).filter(function(r){return !q||(r.c.n+' '+r.c.tp).toLowerCase().indexOf(q)>-1});

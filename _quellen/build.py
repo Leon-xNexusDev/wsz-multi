@@ -3,7 +3,7 @@
 
 Aufruf aus dem Repo-Root:  python3 _quellen/build.py
 """
-import json, os, shutil, sys
+import json, os, re, shutil, sys
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.join(ROOT, 'src')
@@ -15,10 +15,20 @@ IMG = os.path.join(SRC, 'img')
 # Bei eigener Domain hier ändern, z. B. 'https://wirstehenzusammen.de/'
 SITE_URL = 'https://leon-xnexusdev.github.io/wsz-multi/'
 
+# Kontakt – öffentlich sichtbar, nur echte Adressen eintragen
+KONTAKT_MAIL = 'kontakt@wirstehenzusammen.de'
+PRESSE_MAIL = 'presse@wirstehenzusammen.de'
+TELEGRAM_URL = ''   # Link zum bundesweiten Kanal, z. B. 'https://t.me/...'; leer = öffentlich ausgeblendet
+
+# Städte, in denen es die Gruppe wirklich gibt. Nur diese erscheinen öffentlich.
+ECHT = {'dresden', 'magdeburg'}
+
 sys.path.insert(0, ROOT)
 from og import make_og
 
-# ---------- Städte (Beispieldaten) ----------
+# ---------- Städte ----------
+# id, n, lon, lat, side: Stammdaten.  c, tp: nur Beispieldaten für den Entwurf.
+# Echte Angaben (leer = öffentlich nicht angezeigt): treffpunkt, aktion, treffen, instagram, telegram, presse
 CITIES = [
     dict(id='dresden', n='Dresden', lon=13.74, lat=51.05, tp='Theaterplatz', c=1840, side='r'),
     dict(id='magdeburg', n='Magdeburg', lon=11.63, lat=52.13, tp='Domplatz', c=1215, side='r'),
@@ -41,8 +51,23 @@ CITIES = [
     dict(id='freiburg', n='Freiburg', lon=7.85, lat=47.99, tp='Treffpunkt folgt', c=420, side='r'),
     dict(id='goettingen', n='Göttingen', lon=9.93, lat=51.54, tp='Treffpunkt folgt', c=230, side='r'),
 ]
-ALPHA = sorted(CITIES, key=lambda c: c['n'].replace('Ö', 'O').replace('ü', 'u'))
-TOTAL = sum(c['c'] for c in CITIES)
+for _c in CITIES:
+    _c['echt'] = _c['id'] in ECHT
+    for _k in ('treffpunkt', 'aktion', 'treffen', 'instagram', 'telegram', 'presse'):
+        _c.setdefault(_k, '')
+
+DRAFT, CUR, ALPHA, TOTAL = True, [], [], 0
+
+def set_mode(draft):
+    """Entwurf: alle Städte mit Beispieldaten. Öffentlich: nur echte Städte, Zahlen ab 0, nur echte Angaben."""
+    global DRAFT, CUR, ALPHA, TOTAL
+    DRAFT = draft
+    if draft:
+        CUR = [dict(c) for c in CITIES]
+    else:
+        CUR = [dict(c, c=0, tp=c['treffpunkt']) for c in CITIES if c['echt']]
+    ALPHA = sorted(CUR, key=lambda c: c['n'].replace('Ö', 'O').replace('ü', 'u'))
+    TOTAL = sum(c['c'] for c in CUR)
 
 def fmt(n):
     return f'{n:,}'.replace(',', '.')
@@ -50,7 +75,8 @@ def fmt(n):
 NAV = [('index.html', 'Start'), ('worum-es-geht.html', 'Worum es geht'), ('staedte.html', 'Städte'),
        ('mitmachen.html', 'Mitmachen'), ('material.html', 'Material'), ('presse.html', 'Presse')]
 
-PH = lambda txt, dark=False: f'<span class="ph{" dark" if dark else ""}">{txt}</span>'
+def PH(txt, dark=False):
+    return f'<span class="ph{" dark" if dark else ""}">{txt}</span>' if DRAFT else ''
 MENU_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>'
 PLAY = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l13 8-13 8z" fill="currentColor"/></svg>'
 
@@ -72,7 +98,7 @@ def header(base, active):
 def footer(base):
     return f'''<footer>
   <div class="wrap">
-    <span>© 2026 Wir stehen zusammen · <span class="sel" id="foot-mail">kontakt@wirstehenzusammen.de</span> <button type="button" class="copy" data-copy="foot-mail" style="color:#fff;border-color:rgba(255,255,255,.35)">Kopieren</button> {PH("Adresse Platzhalter", True)}</span>
+    <span>© 2026 Wir stehen zusammen · <span class="sel" id="foot-mail">{KONTAKT_MAIL}</span> <button type="button" class="copy" data-copy="foot-mail" style="color:#fff;border-color:rgba(255,255,255,.35)">Kopieren</button> {PH("Adresse Platzhalter", True)}</span>
     <nav aria-label="Weitere Seiten"><a href="{base}material.html">Material</a><a href="{base}presse.html">Presse</a><a href="{base}impressum.html">Impressum</a><a href="{base}datenschutz.html">Datenschutz</a><button type="button" class="linkbtn" data-consent-open>Video-Einstellungen</button></nav>
   </div>
 </footer>'''
@@ -95,17 +121,18 @@ def page_head(tag, title, lead='', crumbs=''):
 
 def shell(title, body, base='', active='', desc='', artifact_main=False, path='index.html', og='og/start.jpg', og_title=None):
     og_title = og_title or title
-    page_url = SITE_URL + ('' if path == 'index.html' else path)
+    site = SITE_URL + ('entwurf/' if DRAFT else '')
+    page_url = site + ('' if path == 'index.html' else path)
     head = f'''<title>{title}</title>
 <meta name="description" content="{desc}">
-<meta name="theme-color" content="#26326b">
+<meta name="theme-color" content="#26326b">{chr(10) + '<meta name="robots" content="noindex, nofollow">' if DRAFT else ''}
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Wir stehen zusammen">
 <meta property="og:locale" content="de_DE">
 <meta property="og:title" content="{og_title}">
 <meta property="og:description" content="{desc}">
 <meta property="og:url" content="{page_url}">
-<meta property="og:image" content="{SITE_URL}{og}">
+<meta property="og:image" content="{site}{og}">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -114,7 +141,9 @@ def shell(title, body, base='', active='', desc='', artifact_main=False, path='i
 <link rel="canonical" href="{page_url}">
 <link rel="stylesheet" href="{base}css/wsz.css">
 <link rel="icon" href="{base}img/logo.webp">'''
-    content = f'''{header(base, active)}
+    bar = (f'<aside class="draftbar" aria-label="Hinweis">Entwurf für das Team: Platzhalter und Beispieldaten sind sichtbar. '
+           f'<a href="{SITE_URL}{"" if path == "index.html" else path}">Öffentliche Version</a></aside>\n') if DRAFT else ''
+    content = f'''{header(base, active).replace('</a>' + chr(10), '</a>' + chr(10) + bar, 1)}
 <main id="start">
 {body}
 </main>
@@ -135,7 +164,7 @@ def shell(title, body, base='', active='', desc='', artifact_main=False, path='i
                 + f'\n<script>document.documentElement.setAttribute("data-base","{base}");document.documentElement.lang="de";</script>\n'
                 + content)
     return f'''<!doctype html>
-<html lang="de" data-base="{base}">
+<html lang="de" data-base="{base}"{" data-entwurf" if DRAFT else ""}>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -174,7 +203,7 @@ def p_index(base=''):
         <h2 style="margin-top:14px">Wo bist du dabei?</h2>
         <p class="p-intro">Such deine Stadt und sag zu. Die Zahlen sind für alle sichtbar, Namen nie.</p>
       </div>
-      <div class="total">
+      <div class="total" data-zero-hide{" hidden" if TOTAL == 0 else ""}>
         <b data-count="total">{fmt(TOTAL)}</b>
         <span>Versprechen<br>bundesweit</span>
         {PH("Beispielzahlen", True)}
@@ -262,6 +291,26 @@ def p_worum(base=''):
 {cta_band(base)}'''
 
 
+def meet_html(base):
+    cards = []
+    if DRAFT:
+        cards.append(f'''<div class="card on-dark">
+        <span class="tag" style="justify-self:start">Erstes Treffen</span>
+        <p class="when">[Datum, Zeit, Ort]</p>
+        <p>Komm zum ersten Treffen, Sozialratschlag oder Stammtisch in deiner Stadt. Die Termine stehen auf den <a href="{base}staedte.html" style="color:#fff">Stadtseiten</a>.</p>
+        {PH("Platzhalter", True).replace('">', '" style="justify-self:start">', 1)}
+      </div>''')
+    if DRAFT or TELEGRAM_URL:
+        cards.append(f'''<div class="card berry on-dark" id="telegram">
+        <span class="tag navy" style="justify-self:start">Telegram</span>
+        <p class="when">Bundesweiter Kanal</p>
+        <p>Termine und Aufrufe direkt aufs Handy.</p>
+        <a class="btn btn-navy" href="{TELEGRAM_URL or '#telegram'}" style="justify-self:start">Kanal beitreten</a>
+        {PH("Link aus QR-Code eintragen", True).replace('">', '" style="justify-self:start">', 1)}
+      </div>''')
+    return f'<div class="meet">{"".join(cards)}</div>' if cards else ''
+
+
 def p_mitmachen(base=''):
     return f'''{page_head("", "Dafür braucht es DICH!", "Ein breites Bündnis aus Gewerkschaften, Linkspartei und zivilgesellschaftlichen Initiativen entsteht nicht von allein. Pack mit an.")}
 
@@ -273,21 +322,7 @@ def p_mitmachen(base=''):
       <div class="way"><span class="kicker">Im Kiez</span><h3>Nachbarschaft mobilisieren</h3><p>Flyer verteilen, Infostände machen, Leute zu den Aktionen holen. <a href="{base}material.html">Material gibt's hier.</a></p></div>
       <div class="way"><span class="kicker">In der Stadt</span><h3>Bündnis aufbauen</h3><p>Gewerkschaften, Initiativen und Vereine vor Ort an einen Tisch holen.</p></div>
     </div>
-    <div class="meet">
-      <div class="card on-dark">
-        <span class="tag" style="justify-self:start">Erstes Treffen</span>
-        <p class="when">[Datum, Zeit, Ort]</p>
-        <p>Komm zum ersten Treffen, Sozialratschlag oder Stammtisch in deiner Stadt. Die Termine stehen auf den <a href="{base}staedte.html" style="color:#fff">Stadtseiten</a>.</p>
-        {PH("Platzhalter", True).replace('">', '" style="justify-self:start">', 1)}
-      </div>
-      <div class="card berry on-dark" id="telegram">
-        <span class="tag navy" style="justify-self:start">Telegram</span>
-        <p class="when">Bundesweiter Kanal</p>
-        <p>Termine und Aufrufe direkt aufs Handy.</p>
-        <a class="btn btn-navy" href="#telegram" style="justify-self:start">Kanal beitreten</a>
-        {PH("Link aus QR-Code eintragen", True).replace('">', '" style="justify-self:start">', 1)}
-      </div>
-    </div>
+    {meet_html(base)}
   </div>
 </section>
 
@@ -295,7 +330,7 @@ def p_mitmachen(base=''):
   <div class="wrap">
     <div class="sec-head"><h2>Deine Stadt fehlt noch?</h2><p>So kommt sie auf die Karte:</p></div>
     <ol class="steps3">
-      <li><h3>Schreib uns</h3><p>Kurze Mail an <span class="sel" id="grp-mail">kontakt@wirstehenzusammen.de</span> mit Stadt und wie wir dich erreichen. <button type="button" class="copy" data-copy="grp-mail">Kopieren</button></p></li>
+      <li><h3>Schreib uns</h3><p>Kurze Mail an <span class="sel" id="grp-mail">{KONTAKT_MAIL}</span> mit Stadt und wie wir dich erreichen. <button type="button" class="copy" data-copy="grp-mail">Kopieren</button></p></li>
       <li><h3>Wir vernetzen euch</h3><p>Wir bringen dich mit Leuten aus deiner Stadt zusammen, die schon zugesagt haben, und mit Gewerkschafter*innen vor Ort.</p></li>
       <li><h3>Erstes Treffen</h3><p>Ihr ladet zum ersten Treffen ein. Eure Stadt bekommt eine eigene Seite mit Treffpunkt, Terminen und Kanälen.</p></li>
     </ol>
@@ -308,9 +343,9 @@ def p_mitmachen(base=''):
 
 def p_staedte(base=''):
     cards = ''.join(
-        f'<a href="{base}staedte/{c["id"]}.html"><b>{c["n"]}</b><span class="n"><span data-count="{c["id"]}">{fmt(c["c"])}</span><span>Zusagen</span></span><small>{c["tp"]}</small></a>'
+        f'<a href="{base}staedte/{c["id"]}.html"><b>{c["n"]}</b><span class="n" data-zero-hide{" hidden" if not c["c"] else ""}><span data-count="{c["id"]}">{fmt(c["c"])}</span><span>Zusagen</span></span><small>{c["tp"]}</small></a>'
         for c in ALPHA)
-    return f'''{page_head("", "Städte", f"In {len(CITIES)} Städten gibt es schon Gruppen. Auf jeder Stadtseite stehen Treffpunkt, Termine und Kontakt.")}
+    return f'''{page_head("", "Städte", f"In {len(CUR)} {'Stadt' if len(CUR) == 1 else 'Städten'} gibt es schon Gruppen. Jede hat eine eigene Seite.")}
 
 <section class="section">
   <div class="wrap overview">
@@ -328,6 +363,25 @@ def p_staedte(base=''):
 {cta_band(base)}'''
 
 
+def city_rows(c):
+    rows = []
+    def row(dt, dd): rows.append(f'<div><dt>{dt}</dt><dd>{dd}</dd></div>')
+    if c['aktion']: row('Nächste Aktion', c['aktion'])
+    elif DRAFT: row('Nächste Aktion', f'[Datum, Zeit] {PH("Platzhalter")}')
+    if c['tp']: row('Treffpunkt', c['tp'])
+    if c['treffen']: row('Offenes Treffen', c['treffen'])
+    elif DRAFT: row('Offenes Treffen', f'[Wochentag, Uhrzeit, Ort] {PH("Platzhalter")}')
+    links = []
+    if c['instagram']: links.append(f'<a href="https://instagram.com/{c["instagram"].lstrip("@")}">Instagram {c["instagram"]}</a>')
+    if c['telegram']: links.append(f'<a href="{c["telegram"]}">Telegram</a>')
+    if links: row('Kanäle', f'<span class="chips-l">{"".join(links)}</span>')
+    elif DRAFT: row('Kanäle', f'<span class="chips-l"><a href="#kanal">Instagram @wsz_{c["id"]}</a><a href="#kanal">Telegram</a></span> {PH("Links folgen")}')
+    row('Teilen', f'<div class="share" data-share-city="{c["id"]}"></div>')
+    mail = c['presse'] or (f'presse-{c["id"]}@wirstehenzusammen.de' if DRAFT else '')
+    if mail: row('Presse', f'<span class="sel" id="press-{c["id"]}">{mail}</span> <button type="button" class="copy" data-copy="press-{c["id"]}">Kopieren</button> {"" if c["presse"] else PH("Beispieladresse")}')
+    return '\n        '.join(rows)
+
+
 def p_city(c, base='../'):
     crumbs = f'<p class="crumbs"><a href="{base}staedte.html">Städte</a><span aria-hidden="true">/</span><span>{c["n"]}</span></p>'
     others = ''.join(f'<a href="{o["id"]}.html">{o["n"]}</a>' for o in ALPHA if o['id'] != c['id'])
@@ -335,7 +389,7 @@ def p_city(c, base='../'):
   <div class="wrap">
     {crumbs}
     <h1 class="first">{c["n"]}</h1>
-    <div class="city-stats">
+    <div class="city-stats" data-zero-hide{" hidden" if not c["c"] else ""}>
       <div><div class="big" data-count="{c["id"]}">{fmt(c["c"])}</div></div>
       <div class="lbl">Zusagen<br>aus {c["n"]}</div>
       {PH("Beispielzahl", True)}
@@ -347,12 +401,7 @@ def p_city(c, base='../'):
   <div class="wrap city-main">
     <div style="min-width:0">
       <dl class="infolist" style="margin:0">
-        <div><dt>Nächste Aktion</dt><dd>[Datum, Zeit] {PH("Platzhalter")}</dd></div>
-        <div><dt>Treffpunkt</dt><dd>{c["tp"]}</dd></div>
-        <div><dt>Offenes Treffen</dt><dd>[Wochentag, Uhrzeit, Ort] {PH("Platzhalter")}</dd></div>
-        <div><dt>Kanäle</dt><dd><span class="chips-l"><a href="#kanal">Instagram @wsz_{c["id"]}</a><a href="#kanal">Telegram</a></span> {PH("Links folgen")}</dd></div>
-        <div><dt>Teilen</dt><dd><div class="share" data-share-city="{c["id"]}"></div></dd></div>
-        <div><dt>Presse</dt><dd><span class="sel" id="press-{c["id"]}">presse-{c["id"]}@wirstehenzusammen.de</span> <button type="button" class="copy" data-copy="press-{c["id"]}">Kopieren</button> {PH("Beispieladresse")}</dd></div>
+        {city_rows(c)}
       </dl>
       <div class="minimap"><svg class="demap" data-map="focus" data-focus="{c["id"]}" viewBox="0 0 520 680" role="img" aria-label="Lage von {c["n"]} auf der Deutschlandkarte"></svg></div>
     </div>
@@ -372,6 +421,13 @@ def p_city(c, base='../'):
 </section>'''
 
 
+def mat_if(fn):
+    return '' if (DRAFT or os.path.exists(os.path.join(REPO, 'material', fn))) else '<!--weg-->'
+
+def mat_end():
+    return '<!--/weg-->'
+
+
 def p_material(base=''):
     return f'''{page_head("", "Material", "Zum Ausdrucken und Teilen. Nehmt euch, was ihr braucht.")}
 
@@ -379,22 +435,22 @@ def p_material(base=''):
   <div class="wrap">
     <h2 class="sr-only">Downloads</h2>
     <div class="mats" style="margin-top:0">
-      <article class="mat">
+      {mat_if("WSZ_Flyer.pdf")}<article class="mat">
         <div class="thumb">#WirStehen&shy;Zusammen</div>
         <div>
           <h3>Kampagnen-Flyer</h3>
           <p>A4, Vorder- und Rückseite. Kopiervorlage mit Feld für euren lokalen Termin und QR-Code zum Telegram-Kanal.</p>
-          <div class="acts"><a class="btn btn-navy" href="{base}material/WSZ_Flyer.pdf">PDF öffnen</a>{PH("Datei auf Server ablegen")}</div>
+          <div class="acts"><a class="btn btn-navy" href="{"../" if DRAFT else ""}{base}material/WSZ_Flyer.pdf">PDF öffnen</a>{PH("Datei auf Server ablegen")}</div>
         </div>
-      </article>
-      <article class="mat">
+      </article>{mat_end()}
+      {mat_if("WSZ_Logo_Sharepics.zip")}<article class="mat">
         <div class="thumb berry logo-thumb"><img src="{base}img/logo.webp" alt="" width="150" height="150" loading="lazy"></div>
         <div>
           <h3>Logo &amp; Sharepics</h3>
           <p>Das Kampagnenlogo als PNG und Vorlagen für Instagram-Posts und Storys. Einfach euren Ort und Termin eintragen und teilen.</p>
-          <div class="acts"><a class="btn btn-navy" href="{base}material/WSZ_Logo_Sharepics.zip">Paket öffnen</a>{PH("Sharepics folgen")}</div>
+          <div class="acts"><a class="btn btn-navy" href="{"../" if DRAFT else ""}{base}material/WSZ_Logo_Sharepics.zip">Paket öffnen</a>{PH("Sharepics folgen")}</div>
         </div>
-      </article>
+      </article>{mat_end()}
       <article class="mat">
         <div class="thumb" style="background:var(--hot)">Teaser</div>
         <div>
@@ -412,9 +468,9 @@ def p_material(base=''):
 
 def p_presse(base=''):
     rows = ''.join(
-        f'<tr><td><a href="{base}staedte/{c["id"]}.html">{c["n"]}</a></td><td><span class="sel">presse-{c["id"]}@wirstehenzusammen.de</span></td></tr>'
-        for c in ALPHA)
-    return f'''{page_head("", "Presse", "Anfragen bitte per E-Mail. Für Berichte aus einer bestimmten Stadt meldet euch direkt bei der Gruppe dort.")}
+        f'<tr><td><a href="{base}staedte/{c["id"]}.html">{c["n"]}</a></td><td><span class="sel">{c["presse"] or "presse-" + c["id"] + "@wirstehenzusammen.de"}</span></td></tr>'
+        for c in ALPHA if c['presse'] or DRAFT)
+    return f'''{page_head("", "Presse", "Anfragen bitte per E-Mail." + (" Für Berichte aus einer bestimmten Stadt meldet euch direkt bei der Gruppe dort." if rows else ""))}
 
 <section class="section">
   <div class="wrap">
@@ -422,35 +478,35 @@ def p_presse(base=''):
     <div class="press-grid">
       <div class="pcard">
         <h3>Bundesweit</h3>
-        <p>[Name, Funktion] {PH("Platzhalter")}</p>
-        <p><span class="sel" id="press-main">presse@wirstehenzusammen.de</span> <button type="button" class="copy" data-copy="press-main">Kopieren</button></p>
-        <p>Telefon: [Nummer] {PH("Platzhalter")}</p>
+        {"<p>[Name, Funktion] " + PH("Platzhalter") + "</p>" if DRAFT else ""}
+        <p><span class="sel" id="press-main">{PRESSE_MAIL}</span> <button type="button" class="copy" data-copy="press-main">Kopieren</button></p>
+        {"<p>Telefon: [Nummer] " + PH("Platzhalter") + "</p>" if DRAFT else ""}
       </div>
-      <div class="pcard">
+      <!--entwurf--><div class="pcard">
         <h3>Pressemitteilungen und Fotos</h3>
         <p>Fotos von unseren Aktionen sind honorarfrei, mit Bildnachweis.</p>
         <p>{PH("Folgt")}</p>
-      </div>
+      </div><!--/entwurf-->
     </div>
   </div>
 </section>
 
-<section class="section">
+{"" if rows else "<!--weg-->"}<section class="section">
   <div class="wrap">
     <div class="sec-head"><h2>Pressekontakte vor Ort</h2><p>{PH("Beispieladressen")}</p></div>
     <div class="tbl-wrap"><table class="contacts"><thead><tr><th>Stadt</th><th>E-Mail</th></tr></thead><tbody>{rows}</tbody></table></div>
   </div>
-</section>'''
+</section>{"" if rows else "<!--/weg-->"}'''
 
 
 def p_impressum(base=''):
     return f'''{page_head("", "Impressum")}
 <section class="section"><div class="wrap prose">
-  <div class="todo"><p><strong>Platzhalter.</strong> Wird ausgefüllt, sobald die rechtliche Trägerschaft geklärt ist (Katja klärt mit Pascal, IGM).</p></div>
+  <!--entwurf--><div class="todo"><p><strong>Platzhalter.</strong> Wird ausgefüllt, sobald die rechtliche Trägerschaft geklärt ist (Katja klärt mit Pascal, IGM).</p></div><!--/entwurf-->
   <h2>Angaben gemäß § 5 DDG</h2>
   <p>[Name der Organisation bzw. verantwortlichen Person]<br>[Straße, Hausnummer]<br>[PLZ, Ort]</p>
   <h3>Vertreten durch</h3><p>[Name]</p>
-  <h3>Kontakt</h3><p>E-Mail: kontakt@wirstehenzusammen.de<br>Telefon: [Nummer]</p>
+  <h3>Kontakt</h3><p>E-Mail: {KONTAKT_MAIL}<br>Telefon: [Nummer]</p>
   <h2>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</h2>
   <p>[Name, Anschrift]</p>
   <h2>Haftung für Links</h2>
@@ -461,7 +517,7 @@ def p_impressum(base=''):
 def p_datenschutz(base=''):
     return f'''{page_head("", "Datenschutz")}
 <section class="section"><div class="wrap prose">
-  <div class="todo"><p><strong>Platzhalter.</strong> Gliederung der Datenschutzerklärung. Der endgültige Text muss rechtlich geprüft werden, bevor das Versprechen-Formular live geht.</p></div>
+  <!--entwurf--><div class="todo"><p><strong>Platzhalter.</strong> Gliederung der Datenschutzerklärung. Der endgültige Text muss rechtlich geprüft werden, bevor das Versprechen-Formular live geht.</p></div><!--/entwurf-->
   <h2>1. Verantwortliche Stelle</h2><p>[Name, Anschrift, E-Mail]</p>
   <h2>2. Hosting</h2><p>Die Website liegt auf einem eigenen Server bei [Anbieter, Standort Deutschland/EU]. Beim Aufruf werden technisch notwendige Daten (IP-Adresse, Zeitpunkt, aufgerufene Seite) in Server-Logs verarbeitet. [Speicherdauer]</p>
   <h2>3. Schriften</h2><p>Alle Schriften liegen auf unserem eigenen Server. Es wird keine Verbindung zu Google oder anderen Schrift-Anbietern aufgebaut.</p>
@@ -479,15 +535,32 @@ def p_datenschutz(base=''):
 
 # ---------- Build ----------
 
-def build():
-    for sub in ('staedte', 'css', 'js', 'img', 'fonts'):
-        os.makedirs(os.path.join(DIST, sub), exist_ok=True)
+REPO = DIST
+
+def clean(html):
+    """Öffentlich: nur-Entwurf-Blöcke und weggelassene Abschnitte entfernen."""
+    if DRAFT:
+        return html.replace('<!--entwurf-->', '').replace('<!--/entwurf-->', '').replace('<!--weg-->', '').replace('<!--/weg-->', '')
+    html = re.sub(r'<!--entwurf-->.*?<!--/entwurf-->', '', html, flags=re.S)
+    html = re.sub(r'<!--weg-->.*?<!--/weg-->', '', html, flags=re.S)
+    return html
+
+
+def build_one(dest, draft):
+    set_mode(draft)
+    for sub in ('staedte', 'og'):
+        shutil.rmtree(os.path.join(dest, sub), ignore_errors=True)
+    for sub in ('staedte', 'css', 'js', 'img', 'fonts', 'og'):
+        os.makedirs(os.path.join(dest, sub), exist_ok=True)
     for fn in os.listdir(os.path.join(SRC, 'fonts')):
         if fn.endswith('.woff2'):
-            shutil.copy(os.path.join(SRC, 'fonts', fn), os.path.join(DIST, 'fonts', fn))
+            shutil.copy(os.path.join(SRC, 'fonts', fn), os.path.join(dest, 'fonts', fn))
     css = open(os.path.join(SRC, 'base.css')).read() + open(os.path.join(SRC, 'pages.css')).read()
     js = open(os.path.join(SRC, 'wsz.js')).read()
-    data = '/* Städte – Beispieldaten. Neue Stadt: Eintrag in _quellen/build.py ergänzen und Script laufen lassen. */\nwindow.WSZ_CITIES=' + json.dumps(CITIES, ensure_ascii=False) + ';\n'
+    if not draft:
+        js = re.sub(r"\n *else if\(DRAFT\)h\+=[^\n]*", '', js)   # Entwurfs-Zweig raus
+    note = 'Entwurf: alle Städte mit Beispieldaten.' if draft else 'Öffentlich: nur echte Städte (ECHT in _quellen/build.py), Zahlen ab 0.'
+    data = f'/* Städte – {note} */\nwindow.WSZ_CITIES=' + json.dumps(CUR, ensure_ascii=False) + ';\n'
     imgs = {'logo.webp': 'logo.webp', 'demo-blockade.jpg': 'crowd2.jpg', 'demo-verdi.jpg': 'crowd1.jpg'}
     pages = [
         ('index.html', 'Wir stehen zusammen', 'index.html', p_index, 'Bundesweite Kampagne: Streiks mit Protest gegen Sozialabbau verbinden. Gib dein Protestversprechen ab.'),
@@ -499,22 +572,26 @@ def build():
         ('impressum.html', 'Impressum · Wir stehen zusammen', '', p_impressum, 'Impressum'),
         ('datenschutz.html', 'Datenschutz · Wir stehen zusammen', '', p_datenschutz, 'Datenschutzerklärung'),
     ]
-    open(os.path.join(DIST, 'css', 'wsz.css'), 'w').write(css)
-    open(os.path.join(DIST, 'js', 'wsz.js'), 'w').write(js)
-    open(os.path.join(DIST, 'js', 'staedte.js'), 'w').write(data)
+    open(os.path.join(dest, 'css', 'wsz.css'), 'w').write(css)
+    open(os.path.join(dest, 'js', 'wsz.js'), 'w').write(js)
+    open(os.path.join(dest, 'js', 'staedte.js'), 'w').write(data)
     for dst, srcname in imgs.items():
-        shutil.copy(os.path.join(IMG, srcname), os.path.join(DIST, 'img', dst))
-    os.makedirs(os.path.join(DIST, 'og'), exist_ok=True)
-    make_og(os.path.join(DIST, 'og', 'start.jpg'), 'Wir stehen zusammen.', 'SOZIALSTAAT VERTEIDIGEN.', 'Gib dein Protestversprechen ab')
+        shutil.copy(os.path.join(IMG, srcname), os.path.join(dest, 'img', dst))
+    make_og(os.path.join(dest, 'og', 'start.jpg'), 'Wir stehen zusammen.', 'SOZIALSTAAT VERTEIDIGEN.', 'Gib dein Protestversprechen ab')
     for fn, title, active, fnc, desc in pages:
-        open(os.path.join(DIST, fn), 'w').write(shell(title, fnc(''), '', active, desc, path=fn))
-    for c in CITIES:
-        make_og(os.path.join(DIST, 'og', c['id'] + '.jpg'), f'{c["n"]} steht zusammen.', 'BIST DU DABEI?', 'Jetzt zusagen')
+        open(os.path.join(dest, fn), 'w').write(clean(shell(title, fnc(''), '', active, desc, path=fn)))
+    for c in CUR:
+        make_og(os.path.join(dest, 'og', c['id'] + '.jpg'), f'{c["n"]} steht zusammen.', 'BIST DU DABEI?', 'Jetzt zusagen')
         out = shell(f'{c["n"]} · Wir stehen zusammen', p_city(c, '../'), '../', 'staedte.html',
-                    f'Wir stehen zusammen in {c["n"]}: Treffpunkt, Termine, Kanäle und Protestversprechen. Bist du dabei?',
+                    f'Wir stehen zusammen in {c["n"]}: Treffpunkt, Termine und Protestversprechen. Bist du dabei?',
                     path=f'staedte/{c["id"]}.html', og=f'og/{c["id"]}.jpg', og_title=f'{c["n"]} steht zusammen. Bist du dabei?')
-        open(os.path.join(DIST, 'staedte', c['id'] + '.html'), 'w').write(out)
-    print('ok', len(CITIES), 'Städte')
+        open(os.path.join(dest, 'staedte', c['id'] + '.html'), 'w').write(clean(out))
+    print('Entwurf ' if draft else 'Öffentlich', '->', os.path.relpath(dest, DIST) if dest != DIST else '.', '|', len(CUR), 'Städte')
+
+
+def build():
+    build_one(DIST, False)
+    build_one(os.path.join(DIST, 'entwurf'), True)
 
 if __name__ == '__main__':
     build()

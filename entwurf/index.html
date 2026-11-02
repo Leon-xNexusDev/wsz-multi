@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="de" data-base="" data-entwurf>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wir stehen zusammen</title>
+<meta name="description" content="Bundesweite Kampagne: Streiks mit Protest gegen Sozialabbau verbinden. Gib dein Protestversprechen ab.">
+<meta name="theme-color" content="#26326b">
+<meta name="robots" content="noindex, nofollow">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Wir stehen zusammen">
+<meta property="og:locale" content="de_DE">
+<meta property="og:title" content="Wir stehen zusammen">
+<meta property="og:description" content="Bundesweite Kampagne: Streiks mit Protest gegen Sozialabbau verbinden. Gib dein Protestversprechen ab.">
+<meta property="og:url" content="https://leon-xnexusdev.github.io/wsz-multi/entwurf/">
+<meta property="og:image" content="https://leon-xnexusdev.github.io/wsz-multi/entwurf/og/start.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Wir stehen zusammen – #WirStehenZusammen">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://leon-xnexusdev.github.io/wsz-multi/entwurf/">
+<link rel="stylesheet" href="css/wsz.css">
+<link rel="icon" href="img/logo.webp">
+</head>
+<body>
+<a class="skip" href="#start">Zum Inhalt springen</a>
+<aside class="draftbar" aria-label="Hinweis">Entwurf für das Team: Platzhalter und Beispieldaten sind sichtbar. <a href="https://leon-xnexusdev.github.io/wsz-multi/">Öffentliche Version</a></aside>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="index.html" aria-label="Wir stehen zusammen – Startseite"><img src="img/logo.webp" alt="" width="44" height="44"><span translate="no">#WirStehenZusammen</span></a>
+    <nav class="navlinks" id="navlinks" aria-label="Hauptmenü"><a href="index.html" aria-current="page">Start</a><a href="worum-es-geht.html">Worum es geht</a><a href="staedte.html">Städte</a><a href="mitmachen.html">Mitmachen</a><a href="material.html">Material</a><a href="presse.html">Presse</a></nav>
+    <a class="btn btn-hot cta" href="index.html#versprechen">Protestversprechen</a>
+    <button type="button" class="menu-btn" aria-label="Menü" aria-expanded="false" aria-controls="navlinks"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span>Menü</span></button>
+  </div>
+</header>
+<main id="start">
+<section class="hero">
+  <div class="photo" style="background-image:url('img/demo-blockade.jpg')">
+    <div class="bgslot" data-vimeo-bg="909677587" aria-hidden="true"></div>
+    <a class="vid-cta" href="worum-es-geht.html#teaser"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l13 8-13 8z" fill="currentColor"/></svg>Teaser mit Ton</a>
+    <span class="ph dark vid-ph">Übergangs-Video</span>
+  </div>
+  <div class="bars">
+    <div class="bar bar-1"><div class="wrap"><h1>Wir stehen zusammen.</h1></div></div>
+    <div class="bar bar-2"><div class="wrap"><span class="big">SOZIALSTAAT<br>VERTEIDIGEN.</span></div></div>
+  </div>
+  <div class="wrap below on-dark">
+    <div class="logo"><img src="img/logo.webp" alt="Logo Wir stehen zusammen" width="220" height="220" fetchpriority="high"></div>
+    <div><p class="lead">Die Angriffe auf den Sozialstaat spitzen sich zu. Wir bringen Aktivist*innen und Kolleg*innen bundesweit zusammen und verbinden Streiks mit Protest.</p></div>
+  </div>
+</section>
+
+<section class="pledge" id="versprechen">
+  <div class="wrap">
+    <div class="p-head">
+      <div>
+        <span class="tag hot">Protestversprechen</span>
+        <h2 style="margin-top:14px">Wo bist du dabei?</h2>
+        <p class="p-intro">Such deine Stadt und sag zu. Die Zahlen sind für alle sichtbar, Namen nie.</p>
+      </div>
+      <div class="total" data-zero-hide>
+        <b data-count="total">18.875</b>
+        <span>Versprechen<br>bundesweit</span>
+        <span class="ph dark">Beispielzahlen</span>
+      </div>
+    </div>
+    <div class="p-grid">
+      <div class="mapcol">
+        <svg class="demap" id="map" viewBox="0 0 520 680" role="group" aria-label="Deutschlandkarte mit allen Städten, in denen wir aktiv sind"></svg>
+        <div class="maplegend">
+          <span><i class="sq own"></i>Städte, in denen wir aktiv sind</span>
+          <span class="ph dark">Orte symbolisch</span>
+        </div>
+      </div>
+      <div class="listcol">
+        <label class="search" for="city-search">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+          <input id="city-search" type="search" placeholder="Stadt oder Treffpunkt suchen…" autocomplete="off">
+        </label>
+        <p class="rank-head">Sortiert nach Zusagen.</p>
+        <ol class="cities" id="cities"></ol>
+        <button type="button" class="more" id="more">Alle Städte anzeigen</button>
+        <p class="missing">Deine Stadt fehlt? <a href="mitmachen.html#gruenden">Dann gründe eine Gruppe.</a></p>
+      </div>
+    </div>
+    <p class="p-quote">„Wenn der Sozialstaat angegriffen wird, gehe ich mit auf die Straße. Wir stehen zusammen.“ <span class="ph dark">Wortlaut Platzhalter</span></p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="sec-head"><h2>Mehr zur Kampagne</h2></div>
+    <div class="guide">
+      <a href="worum-es-geht.html"><h3>Worum es geht</h3><p>Milliarden sollen gekürzt werden. Warum Protest allein nicht reicht und was unser Plan ist.</p></a>
+      <a href="mitmachen.html"><h3>Mitmachen</h3><p>Komm zum ersten Treffen oder gründe eine Gruppe in deiner Stadt.</p></a>
+      <a href="material.html"><h3>Material</h3><p>Flyer, Logo und Sharepics zum Ausdrucken und Teilen.</p></a>
+    </div>
+  </div>
+</section>
+
+<section class="closer" style="background-image:url('img/demo-verdi.jpg')">
+  <div class="band"><div class="wrap"><span class="hash" translate="no">#WirStehenZusammen</span><a class="btn btn-hot" href="#versprechen">Werde Teil der Protestbewegung</a></div></div>
+</section>
+</main>
+<footer>
+  <div class="wrap">
+    <span>© 2026 Wir stehen zusammen · <span class="sel" id="foot-mail">kontakt@wirstehenzusammen.de</span> <button type="button" class="copy" data-copy="foot-mail" style="color:#fff;border-color:rgba(255,255,255,.35)">Kopieren</button> <span class="ph dark">Adresse Platzhalter</span></span>
+    <nav aria-label="Weitere Seiten"><a href="material.html">Material</a><a href="presse.html">Presse</a><a href="impressum.html">Impressum</a><a href="datenschutz.html">Datenschutz</a><button type="button" class="linkbtn" data-consent-open>Video-Einstellungen</button></nav>
+  </div>
+</footer>
+<div class="consent" id="consent" hidden>
+  <div class="box" role="dialog" aria-labelledby="consent-h" aria-describedby="consent-p">
+    <h2 id="consent-h">Videos von Vimeo laden?</h2>
+    <p id="consent-p">Unser Teaser liegt bei Vimeo (USA). Wenn du zustimmst, wird er geladen und Vimeo sieht deine IP-Adresse. Ohne Zustimmung startest du das Video später selbst per Klick. <a href="datenschutz.html#videos">Mehr dazu</a></p>
+    <div class="acts"><button type="button" class="yes" data-consent="yes">Videos erlauben</button><button type="button" class="no" data-consent="no">Ablehnen</button></div>
+  </div>
+</div>
+<script src="js/staedte.js"></script>
+<script src="js/wsz.js"></script>
+</body>
+</html>
