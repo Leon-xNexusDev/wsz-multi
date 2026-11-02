@@ -192,7 +192,7 @@ def p_index(base=''):
   </div>
   <div class="bars">
     <div class="bar bar-1"><div class="wrap"><h1>Wir stehen zusammen.</h1></div></div>
-    <div class="bar bar-2"><div class="wrap"><span class="big">SOZIALSTAAT<br>VERTEIDIGEN.</span></div></div>
+    <div class="bar bar-2"><div class="wrap"><span class="big">SOZIALSTAAT VERTEIDIGEN.</span></div></div>
   </div>
   <div class="wrap below on-dark">
     <div class="logo"><img src="{base}img/logo.webp" alt="Logo Wir stehen zusammen" width="220" height="220" fetchpriority="high"></div>
