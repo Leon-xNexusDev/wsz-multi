@@ -140,7 +140,8 @@ def shell(title, body, base='', active='', desc='', artifact_main=False, path='i
 <meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="{page_url}">
 <link rel="stylesheet" href="{base}css/wsz.css">
-<link rel="icon" href="{base}img/logo.webp">'''
+<link rel="icon" href="{base}img/logo.webp">
+<link rel="apple-touch-icon" href="{base}img/apple-touch-icon.png">'''
     bar = (f'<aside class="draftbar" aria-label="Hinweis">Entwurf für das Team: Platzhalter und Beispieldaten sind sichtbar. '
            f'<a href="{SITE_URL}{"" if path == "index.html" else path}">Öffentliche Version</a></aside>\n') if DRAFT else ''
     content = f'''{header(base, active).replace('</a>' + chr(10), '</a>' + chr(10) + bar, 1)}
@@ -561,7 +562,7 @@ def build_one(dest, draft):
         js = re.sub(r"\n *else if\(DRAFT\)h\+=[^\n]*", '', js)   # Entwurfs-Zweig raus
     note = 'Entwurf: alle Städte mit Beispieldaten.' if draft else 'Öffentlich: nur echte Städte (ECHT in _quellen/build.py), Zahlen ab 0.'
     data = f'/* Städte – {note} */\nwindow.WSZ_CITIES=' + json.dumps(CUR, ensure_ascii=False) + ';\n'
-    imgs = {'logo.webp': 'logo.webp', 'demo-blockade.jpg': 'crowd2.jpg', 'demo-verdi.jpg': 'crowd1.jpg'}
+    imgs = {'logo.webp': 'logo.webp', 'apple-touch-icon.png': 'apple-touch-icon.png', 'demo-blockade.jpg': 'crowd2.jpg', 'demo-verdi.jpg': 'crowd1.jpg'}
     pages = [
         ('index.html', 'Wir stehen zusammen', 'index.html', p_index, 'Bundesweite Kampagne: Streiks mit Protest gegen Sozialabbau verbinden. Gib dein Protestversprechen ab.'),
         ('worum-es-geht.html', 'Worum es geht · Wir stehen zusammen', 'worum-es-geht.html', p_worum, 'Warum wir uns organisieren und wie wir Druck gegen Sozialabbau aufbauen.'),
