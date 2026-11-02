@@ -12,12 +12,12 @@ ART = os.path.join(ROOT, 'artifact')
 IMG = os.path.join(SRC, 'img')
 
 # Öffentliche Adresse der Seite – für Linkvorschauen nötig (muss absolut sein).
-# Bei eigener Domain hier ändern, z. B. 'https://wirstehenzusammen.de/'
+# Bei eigener Domain hier ändern, z. B. 'https://wirstehenzusammen.org/'
 SITE_URL = 'https://leon-xnexusdev.github.io/wsz-multi/'
 
 # Kontakt – öffentlich sichtbar, nur echte Adressen eintragen
-KONTAKT_MAIL = 'kontakt@wirstehenzusammen.de'
-PRESSE_MAIL = 'presse@wirstehenzusammen.de'
+KONTAKT_MAIL = 'kontakt@wirstehenzusammen.org'
+PRESSE_MAIL = 'presse@wirstehenzusammen.org'
 TELEGRAM_URL = ''   # Link zum bundesweiten Kanal, z. B. 'https://t.me/...'; leer = öffentlich ausgeblendet
 
 # Adresse des Versprechen-Servers (_server/). Leer = kein Server: öffentlich steht dann
@@ -382,7 +382,7 @@ def city_rows(c):
     if links: row('Kanäle', f'<span class="chips-l">{"".join(links)}</span>')
     elif DRAFT: row('Kanäle', f'<span class="chips-l"><a href="#kanal">Instagram @wsz_{c["id"]}</a><a href="#kanal">Telegram</a></span> {PH("Links folgen")}')
     row('Teilen', f'<div class="share" data-share-city="{c["id"]}"></div>')
-    mail = c['presse'] or (f'presse-{c["id"]}@wirstehenzusammen.de' if DRAFT else '')
+    mail = c['presse'] or (f'presse-{c["id"]}@wirstehenzusammen.org' if DRAFT else '')
     if mail: row('Presse', f'<span class="sel" id="press-{c["id"]}">{mail}</span> <button type="button" class="copy" data-copy="press-{c["id"]}">Kopieren</button> {"" if c["presse"] else PH("Beispieladresse")}')
     return '\n        '.join(rows)
 
@@ -473,7 +473,7 @@ def p_material(base=''):
 
 def p_presse(base=''):
     rows = ''.join(
-        f'<tr><td><a href="{base}staedte/{c["id"]}.html">{c["n"]}</a></td><td><span class="sel">{c["presse"] or "presse-" + c["id"] + "@wirstehenzusammen.de"}</span></td></tr>'
+        f'<tr><td><a href="{base}staedte/{c["id"]}.html">{c["n"]}</a></td><td><span class="sel">{c["presse"] or "presse-" + c["id"] + "@wirstehenzusammen.org"}</span></td></tr>'
         for c in ALPHA if c['presse'] or DRAFT)
     return f'''{page_head("", "Presse", "Anfragen bitte per E-Mail." + (" Für Berichte aus einer bestimmten Stadt meldet euch direkt bei der Gruppe dort." if rows else ""))}
 

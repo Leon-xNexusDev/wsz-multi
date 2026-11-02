@@ -31,7 +31,7 @@ const RATE_PER_HOUR = Number(env('RATE_PER_HOUR', 5));
 const TRUST_PROXY = env('TRUST_PROXY', '1') === '1';
 const MAIL = {
   host: env('SMTP_HOST', ''), port: Number(env('SMTP_PORT', 587)), secure: env('SMTP_SECURE', '0') === '1',
-  user: env('SMTP_USER', ''), pass: env('SMTP_PASS', ''), from: env('MAIL_FROM', 'Wir stehen zusammen <kontakt@wirstehenzusammen.de>'),
+  user: env('SMTP_USER', ''), pass: env('SMTP_PASS', ''), from: env('MAIL_FROM', 'Wir stehen zusammen <kontakt@wirstehenzusammen.org>'),
 };
 
 const TVOED = ['Krankenhaus (TVöD-K)', 'Pflege- und Betreuungseinrichtung (TVöD-B)', 'Kita / Sozial- und Erziehungsdienst (TVöD SuE)',
