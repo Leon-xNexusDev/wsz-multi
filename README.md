@@ -46,3 +46,6 @@ Echte Angaben trägst du oben in `_quellen/build.py` ein:
 ## Server für das Protestversprechen
 Liegt in `_server/` (Node, ohne Framework). Anleitung zum Einrichten, Mail, nginx und Export: [`_server/README.md`](_server/README.md).
 Solange `API_URL` in `_quellen/build.py` leer ist (z. B. auf GitHub Pages), zeigt die öffentliche Seite „Zusagen sind bald möglich“. Der Entwurf simuliert Zusagen im eigenen Browser.
+
+## Fremder Code
+`js/vimeo-player.min.js`: offizielle Vimeo-Player-Bibliothek @vimeo/player 2.24.0 (MIT-Lizenz, © Vimeo). Liegt lokal, damit beim Laden keine Verbindung zu einem fremden CDN entsteht.

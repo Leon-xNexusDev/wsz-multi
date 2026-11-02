@@ -586,6 +586,7 @@ def build_one(dest, draft):
     ]
     open(os.path.join(dest, 'css', 'wsz.css'), 'w').write(css)
     open(os.path.join(dest, 'js', 'wsz.js'), 'w').write(js)
+    shutil.copy(os.path.join(SRC, 'js', 'vimeo-player.min.js'), os.path.join(dest, 'js', 'vimeo-player.min.js'))  # MIT, Vimeo
     open(os.path.join(dest, 'js', 'staedte.js'), 'w').write(data)
     for dst, srcname in imgs.items():
         shutil.copy(os.path.join(IMG, srcname), os.path.join(dest, 'img', dst))

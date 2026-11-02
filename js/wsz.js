@@ -268,7 +268,7 @@
   function set(v){try{localStorage.setItem(KEY,v)}catch(e){}}
   function frame(id,bg,auto){
     var f=document.createElement('iframe');
-    f.src='https://player.vimeo.com/video/'+id+'?dnt=1'+(bg?'&background=1&muted=1&loop=1&autoplay=1&autopause=0':'&title=0&byline=0&portrait=0&color=dd237d&api=1'+(auto?'&autoplay=1':''));
+    f.src='https://player.vimeo.com/video/'+id+'?dnt=1'+(bg?'&background=1&muted=1&loop=1&autoplay=1&autopause=0':'&title=0&byline=0&portrait=0&color=dd237d&loop=1'+(auto?'&autoplay=1':''));
     f.title=bg?'Teaser im Hintergrund (stumm)':'Teaser-Video';
     f.setAttribute('allow','autoplay; fullscreen; picture-in-picture');
     f.setAttribute('allowfullscreen','');
@@ -284,32 +284,35 @@
     ph.appendChild(b);
   }
   function loadBg(){if(bgSlot&&!reduce&&!bgSlot.firstChild){bgSlot.appendChild(frame(bgSlot.getAttribute('data-vimeo-bg'),true));addStop()}}
-  // Am Videoende nicht Vimeos Endansicht mit weiteren Videos des Kanals zeigen, sondern wieder unser Vorschaubild
+  // Am Videoende nicht Vimeos Endansicht mit weiteren Videos des Kanals zeigen, sondern wieder unser Vorschaubild.
+  // Dafür die offizielle Vimeo-Player-Bibliothek (liegt lokal in js/, wird erst beim ersten Video geladen).
+  // Sicherheitsnetz: der Player läuft mit loop=1, ohne Skript startet das Video also neu statt fremde Videos zu zeigen.
+  var VLIB=(document.documentElement.getAttribute('data-base')||'')+'js/vimeo-player.min.js', libP=null;
+  function lib(){
+    if(window.Vimeo&&window.Vimeo.Player)return Promise.resolve();
+    if(!libP)libP=new Promise(function(ok,no){var s=document.createElement('script');s.src=VLIB;s.onload=ok;s.onerror=no;document.head.appendChild(s)});
+    return libP;
+  }
   function resetPlayer(p){
     p.innerHTML=p._orig;
     var b=p.querySelector('.vplay');
     if(b){var t=b.querySelector('b');if(t)t.textContent='Nochmal ansehen';b.addEventListener('click',function(){loadPlayer(p,true)});b.focus({preventScroll:true})}
   }
-  function listen(f){try{f.contentWindow.postMessage(JSON.stringify({method:'addEventListener',value:'ended'}),'https://player.vimeo.com')}catch(e){}}
+  function watch(p,f){
+    lib().then(function(){
+      var pl=new window.Vimeo.Player(f), done=false;
+      var end=function(){if(done)return;done=true;pl.pause().catch(function(){});resetPlayer(p)};
+      pl.on('timeupdate',function(d){if(d&&d.duration&&d.duration-d.seconds<0.5)end()});
+      pl.on('ended',end);
+    }).catch(function(){});
+  }
   function loadPlayer(p,auto){
     if(p.querySelector('iframe'))return;
     if(p._orig==null)p._orig=p.innerHTML;
     p.innerHTML='';
     var f=frame(p.getAttribute('data-vimeo'),false,auto);
-    f.addEventListener('load',function(){listen(f)});
-    p.appendChild(f);
+    p.appendChild(f); watch(p,f);
   }
-  window.addEventListener('message',function(e){
-    if(e.origin!=='https://player.vimeo.com')return;
-    var d=e.data;if(typeof d==='string'){try{d=JSON.parse(d)}catch(x){return}}
-    if(!d||!d.event)return;
-    for(var i=0;i<players.length;i++){
-      var f=players[i].querySelector('iframe');
-      if(!f||f.contentWindow!==e.source)continue;
-      if(d.event==='ready')listen(f);
-      if(d.event==='ended')resetPlayer(players[i]);
-    }
-  });
   for(var i=0;i<players.length;i++)(function(p){var b=p.querySelector('.vplay');if(b)b.addEventListener('click',function(){loadPlayer(p,true)})})(players[i]);
   function apply(){if(get()==='yes'){loadBg();for(var i=0;i<players.length;i++)loadPlayer(players[i],false)}}
   function show(){if(banner){banner.hidden=false;var y=banner.querySelector('.yes');if(y)y.focus({preventScroll:true})}}
