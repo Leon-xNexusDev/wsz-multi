@@ -22,7 +22,6 @@ python3 _quellen/build.py
 - Teaser: übergangsweise ist „Wir fahren zusammen – Wir streiken zusammen“ von Vimeo eingebettet (oben stumm als Hintergrund, unten mit Ton). Eigenes Video später per Vimeo-ID tauschen (`909677587`)
 - `material/WSZ_Flyer.pdf` und `material/WSZ_Logo_Sharepics.zip`
 - Telegram-Link eintragen
-- Versprechen speichern: `sendPledge()` in `_quellen/src/wsz.js` an den Server anbinden
 - Alle Zahlen, Treffpunkte und Kontakte sind Beispieldaten
 
 ## Linkvorschau & Teilen
@@ -43,3 +42,7 @@ Echte Angaben trägst du oben in `_quellen/build.py` ein:
 - pro Stadt: `treffpunkt`, `aktion`, `treffen`, `instagram`, `telegram`, `presse`
 - `TELEGRAM_URL`, `KONTAKT_MAIL`, `PRESSE_MAIL`
 - Material erscheint öffentlich, sobald die Datei in `material/` liegt.
+
+## Server für das Protestversprechen
+Liegt in `_server/` (Node, ohne Framework). Anleitung zum Einrichten, Mail, nginx und Export: [`_server/README.md`](_server/README.md).
+Solange `API_URL` in `_quellen/build.py` leer ist (z. B. auf GitHub Pages), zeigt die öffentliche Seite „Zusagen sind bald möglich“. Der Entwurf simuliert Zusagen im eigenen Browser.

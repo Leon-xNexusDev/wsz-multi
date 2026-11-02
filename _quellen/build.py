@@ -20,6 +20,10 @@ KONTAKT_MAIL = 'kontakt@wirstehenzusammen.de'
 PRESSE_MAIL = 'presse@wirstehenzusammen.de'
 TELEGRAM_URL = ''   # Link zum bundesweiten Kanal, z. B. 'https://t.me/...'; leer = öffentlich ausgeblendet
 
+# Adresse des Versprechen-Servers (_server/). Leer = kein Server: öffentlich steht dann
+# „Zusagen sind bald möglich“ statt eines Formulars. Auf dem eigenen Server mit Reverse Proxy: '/api/'
+API_URL = ''
+
 # Städte, in denen es die Gruppe wirklich gibt. Nur diese erscheinen öffentlich.
 ECHT = {'dresden', 'magdeburg'}
 
@@ -527,6 +531,8 @@ def p_datenschutz(base=''):
   <p>Wenn du ein Versprechen abgibst, verarbeiten wir:</p>
   <ul><li>Name und E-Mail-Adresse</li><li>gewählte Stadt</li><li>Bereich im öffentlichen Dienst (TVöD) und optional deinen Betrieb</li></ul>
   <p>Zweck: dich zu Aktionen in deiner Stadt und deinem Bereich zu informieren und die Zahl der Zusagen pro Stadt anzuzeigen. Angezeigt wird nur die Anzahl, nie Namen.</p>
+  <p>Ablauf: Nach dem Absenden schicken wir dir eine Mail mit einem Bestätigungslink. Erst mit dem Klick zählt deine Zusage. Bestätigst du nicht, löschen wir deine Angaben nach 48 Stunden. In jeder Mail steht ein Link, mit dem du deine Angaben sofort löschen kannst.</p>
+  <p>Deine IP-Adresse speichern wir nicht. Zum Schutz vor Spam wird sie kurzzeitig und unkenntlich gemacht (gehasht) im Arbeitsspeicher geprüft und nach spätestens einer Stunde verworfen.</p>
   <p>Rechtsgrundlage: deine Einwilligung. Weil die Angaben Rückschlüsse auf politische Haltung und gewerkschaftliches Engagement zulassen können, ist zu prüfen, ob eine ausdrückliche Einwilligung nach Art. 9 Abs. 2 lit. a DSGVO nötig ist. {PH("Rechtlich prüfen")}</p>
   <p>Speicherdauer: [z. B. bis zum Ende der Kampagne oder bis zum Widerruf]</p>
   <p>Weitergabe: keine Weitergabe an Dritte. [Ggf. an die lokale Gruppe deiner Stadt – klären]</p>
@@ -561,7 +567,12 @@ def build_one(dest, draft):
     if not draft:
         js = re.sub(r"\n *else if\(DRAFT\)h\+=[^\n]*", '', js)   # Entwurfs-Zweig raus
     note = 'Entwurf: alle Städte mit Beispieldaten.' if draft else 'Öffentlich: nur echte Städte (ECHT in _quellen/build.py), Zahlen ab 0.'
-    data = f'/* Städte – {note} */\nwindow.WSZ_CITIES=' + json.dumps(CUR, ensure_ascii=False) + ';\n'
+    data = (f'/* Städte – {note} */\nwindow.WSZ_CITIES=' + json.dumps(CUR, ensure_ascii=False) + ';\n'
+            + 'window.WSZ_API=' + json.dumps('' if draft else API_URL) + ';\n')
+    if not draft:
+        os.makedirs(os.path.join(REPO, '_server'), exist_ok=True)
+        with open(os.path.join(REPO, '_server', 'staedte.json'), 'w') as f:
+            json.dump([{'id': c['id'], 'n': c['n']} for c in CUR], f, ensure_ascii=False, indent=1)
     imgs = {'logo.webp': 'logo.webp', 'apple-touch-icon.png': 'apple-touch-icon.png', 'demo-blockade.jpg': 'crowd2.jpg', 'demo-verdi.jpg': 'crowd1.jpg'}
     pages = [
         ('index.html', 'Wir stehen zusammen', 'index.html', p_index, 'Bundesweite Kampagne: Streiks mit Protest gegen Sozialabbau verbinden. Gib dein Protestversprechen ab.'),

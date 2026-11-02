@@ -1,21 +1,27 @@
 /* WSZ – gemeinsames Script für alle Seiten.
    Städte-Daten kommen aus staedte.js (window.WSZ_CITIES). Öffentlich: nur echte Städte, Zahlen ab 0. Entwurf: Beispieldaten.
-   Versprechen werden in dieser Vorschau nur im eigenen Browser gezählt.
-   Für den echten Betrieb: sendPledge() an euren Server anbinden (siehe unten). */
+   Mit Server (window.WSZ_API, siehe _server/): Zusagen werden gespeichert und erst nach Klick in der Bestätigungsmail gezählt.
+   Ohne Server: öffentlich „Zusagen sind bald möglich“, im Entwurf eine Simulation im eigenen Browser. */
 (function(){
   'use strict';
   var C=(window.WSZ_CITIES||[]).map(function(c){var o={};for(var k in c)o[k]=c[k];return o});
   var B=document.documentElement.getAttribute('data-base')||'';
   var DRAFT=document.documentElement.hasAttribute('data-entwurf');
+  var API=(window.WSZ_API||'').replace(/\/?$/,'/'); if(API==='/')API='';
   var byId={}; C.forEach(function(c){byId[c.id]=c});
   function fmt(n){return n.toLocaleString('de-DE')}
   function esc(s){return String(s).replace(/[&<>"]/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]})}
   function cityUrl(id){return B+'staedte/'+id+'.html'}
 
   /* ---------- Versprechen-Status ---------- */
-  var mine=null; try{mine=localStorage.getItem('wsz-pledge')}catch(e){}
+  // Öffentlich und Entwurf getrennt merken (gleiche Domain), sonst taucht eine Test-Zusage öffentlich auf
+  var KEY='wsz-pledge'+(DRAFT?'-entwurf':''), PKEY='wsz-pending'+(DRAFT?'-entwurf':'');
+  function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v)}catch(e){return null}}
+  var mine=(DRAFT||API)?ls(KEY):null;
   if(mine&&!byId[mine])mine=null;
-  if(mine)byId[mine].c+=1;
+  if(mine&&DRAFT)byId[mine].c+=1;          // Entwurf: Simulation; mit Server kommen die Zahlen vom Server
+  var pending=null; try{pending=JSON.parse(ls(PKEY)||'null')}catch(e){}
+  if(pending&&(!byId[pending.id]||Date.now()-pending.t>48*3600e3)){pending=null;ls(PKEY,null)}
   var thanks={}, renderers=[];
   function total(){return C.reduce(function(s,c){return s+c.c},0)}
   function updateCounts(){
@@ -26,12 +32,30 @@
 
   /* Hier später an den Server schicken, z. B.:
      fetch('/api/versprechen',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}) */
-  function sendPledge(data){return Promise.resolve(data)}
+  function sendPledge(data){
+    if(!API)return DRAFT?Promise.resolve({status:'demo'}):Promise.reject({fehler:'Zusagen sind noch nicht freigeschaltet.'});
+    return fetch(API+'versprechen',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
+      .then(function(r){return r.json().catch(function(){return {}}).then(function(j){if(!r.ok)throw j;return j})},
+            function(){throw {fehler:'Keine Verbindung. Bitte prüf dein Internet und versuch es nochmal.'}});
+  }
+  function loadCounts(){
+    if(!API)return;
+    fetch(API+'zahlen').then(function(r){return r.ok?r.json():null}).then(function(z){
+      if(!z||!z.staedte)return;
+      C.forEach(function(c){c.c=z.staedte[c.id]||0});
+      rerender();
+    }).catch(function(){});
+  }
+  function pendingHTML(c){
+    return '<div class="done"><span class="badge">Fast geschafft</span><p>Wir haben dir eine Mail geschickt. Erst wenn du den Link darin anklickst, zählt dein Versprechen für '+c.n+'.</p><p class="small">Keine Mail da? Schau im Spam-Ordner nach.</p></div>';
+  }
 
   /* ---------- Formular ---------- */
   var TVOED=['Krankenhaus (TVöD-K)','Pflege- und Betreuungseinrichtung (TVöD-B)','Kita / Sozial- und Erziehungsdienst (TVöD SuE)','Kommunalverwaltung (TVöD-V)','Entsorgung / Stadtreinigung (TVöD-E)','Sparkasse (TVöD-S)','Flughafen (TVöD-F)','Bundesverwaltung (TVöD Bund)','Ausbildung im öffentlichen Dienst (TVAöD)','Anderer Tarifvertrag (z. B. TV-L, TV-N, TV-V)','Nicht im öffentlichen Dienst / weiß nicht'];
   function formHTML(c,opts){
     opts=opts||{};
+    if(!API&&!DRAFT)return '<div class="soon"><p class="pf-title">Zusagen sind bald möglich.</p><p>Wir schalten das Protestversprechen in Kürze frei. Bis dahin kannst du die Seite schon an Kolleg*innen schicken.</p></div>';
+    if(pending&&pending.id===c.id)return pendingHTML(c);
     var sw=(mine&&mine!==c.id)?'<p class="switch-note">Du hast bisher für '+byId[mine].n+' zugesagt. Mit dem Absenden wechselst du nach '+c.n+'.</p>':'';
     return '<form class="pform" data-pform="'+c.id+'" novalidate>'+
       (opts.noTitle?'':'<p class="pf-title">Dein Versprechen für '+c.n+'</p>')+sw+
@@ -41,6 +65,7 @@
       '</div>'+
       '<label class="pf"><span>Wo bist du im TVöD angestellt?</span><select id="pf-tvoed-'+c.id+'" name="tvoed" required><option value="">Bitte wählen</option>'+TVOED.map(function(o){return '<option>'+o+'</option>'}).join('')+'</select></label>'+
       '<label class="pf"><span>Betrieb / Arbeitgeber <em>(optional)</em></span><input id="pf-betrieb-'+c.id+'" name="betrieb" autocomplete="organization" placeholder="z. B. Uniklinik, Stadtreinigung, Kita-Eigenbetrieb"></label>'+
+      '<div class="hp" aria-hidden="true"><label>Webseite <input id="pf-web-'+c.id+'" name="website" tabindex="-1" autocomplete="off"></label></div>'+
       '<label class="pf-check"><input type="checkbox" id="pf-ok-'+c.id+'" required> <span>Ich bin einverstanden, dass ihr meine Angaben speichert, um mich zu Aktionen in '+c.n+' und in meinem Bereich zu informieren. Widerruf jederzeit möglich, Details in der <a href="'+B+'datenschutz.html">Datenschutzerklärung</a>.</span></label>'+
       '<div class="pf-acts"><button type="submit" class="pf-send">Versprechen abgeben</button>'+(opts.cancel?'<button type="button" class="pf-cancel" data-cancel="1">Abbrechen</button>':'')+'</div>'+
       '<span class="note" id="pf-note-'+c.id+'" role="status" hidden></span>'+
@@ -54,11 +79,19 @@
     var bad=!name?g('name'):!/^\S+@\S+\.\S+$/.test(mail)?g('mail'):!tv?g('tvoed'):!ok?g('ok'):null;
     ['name','mail','tvoed','ok'].forEach(function(k){g(k).removeAttribute('aria-invalid')});
     if(err){note.hidden=false;note.textContent=err;bad.setAttribute('aria-invalid','true');bad.setAttribute('aria-describedby',note.id);bad.focus();return}
-    sendPledge({stadt:id,name:name,email:mail,tvoed:tv,betrieb:g('betrieb').value.trim()}).then(function(){
-      if(mine&&byId[mine])byId[mine].c-=1;
-      mine=id; c.c+=1; thanks[id]=name.split(' ')[0];
-      try{localStorage.setItem('wsz-pledge',id)}catch(x){}
+    var btn=f.querySelector('.pf-send'), label=btn.textContent; btn.disabled=true; btn.textContent='Wird gesendet…'; note.hidden=true;
+    sendPledge({stadt:id,name:name,email:mail,tvoed:tv,betrieb:g('betrieb').value.trim(),website:g('web').value,einwilligung:true}).then(function(r){
+      if(r&&r.status==='demo'){
+        if(mine&&byId[mine])byId[mine].c-=1;
+        mine=id; c.c+=1; thanks[id]=name.split(' ')[0]; ls(KEY,id);
+      } else {
+        pending={id:id,t:Date.now()}; ls(PKEY,JSON.stringify(pending));
+      }
       openForm=null; rerender();
+    },function(err){
+      btn.disabled=false; btn.textContent=label;
+      note.hidden=false; note.textContent=(err&&err.fehler)||'Das hat nicht geklappt. Bitte versuch es nochmal.';
+      var fld=err&&err.feld&&g(err.feld); if(fld){fld.setAttribute('aria-invalid','true');fld.focus()}
     });
   });
 
@@ -139,6 +172,7 @@
       if(c.id===sel){
         h+='<div class="detail">';
         if(openForm===c.id&&!isMine){h+=formHTML(c,{cancel:true})}
+        else if(pending&&pending.id===c.id&&!isMine){h+=pendingHTML(c)}
         else{
           if(isMine&&thanks[c.id])h+='<span class="note">Danke, '+esc(thanks[c.id])+'. Du bist für '+c.n+' eingetragen. Wir schreiben dir, wenn es losgeht.</span>';
           if(isMine)h+=shareHTML(c,true,'Schick es an deine Kolleg*innen:');
@@ -188,10 +222,14 @@
   var cp=document.getElementById('city-pledge');
   if(cp){
     var cid=cp.getAttribute('data-city'), cc=byId[cid];
+    if(API&&/[?&]bestaetigt=1/.test(location.search)){
+      mine=cid; ls(KEY,cid); pending=null; ls(PKEY,null); thanks[cid]='';
+      try{history.replaceState(null,'',location.pathname+location.hash)}catch(e){}
+    }
     var renderCity=function(){
       if(mine===cid){
         cp.innerHTML='<div class="done"><span class="badge">Du bist dabei ✓</span>'+
-          (thanks[cid]?'<p>Danke, '+esc(thanks[cid])+'. Du bist für '+cc.n+' eingetragen. Wir schreiben dir, wenn es losgeht.</p>':'<p>Du hast für '+cc.n+' zugesagt. Wir melden uns per E-Mail, sobald es losgeht.</p>')+
+          (thanks[cid]===''?'<p>Bestätigt. Dein Versprechen für '+cc.n+' zählt jetzt. Wir schreiben dir, wenn es losgeht.</p>':thanks[cid]?'<p>Danke, '+esc(thanks[cid])+'. Du bist für '+cc.n+' eingetragen. Wir schreiben dir, wenn es losgeht.</p>':'<p>Du hast für '+cc.n+' zugesagt. Wir melden uns per E-Mail, sobald es losgeht.</p>')+
           shareHTML(cc,true,'Schick es an deine Kolleg*innen:')+'</div>';
       } else cp.innerHTML=formHTML(cc,{noTitle:true});
     };
@@ -219,6 +257,7 @@
 
   renderShareSlots();
   updateCounts();
+  loadCounts();
 })();
 
 /* ---------- Videos: Vimeo erst nach Einwilligung ---------- */
@@ -229,7 +268,7 @@
   function set(v){try{localStorage.setItem(KEY,v)}catch(e){}}
   function frame(id,bg,auto){
     var f=document.createElement('iframe');
-    f.src='https://player.vimeo.com/video/'+id+'?dnt=1'+(bg?'&background=1&muted=1&loop=1&autoplay=1&autopause=0':'&title=0&byline=0&portrait=0&color=dd237d'+(auto?'&autoplay=1':''));
+    f.src='https://player.vimeo.com/video/'+id+'?dnt=1'+(bg?'&background=1&muted=1&loop=1&autoplay=1&autopause=0':'&title=0&byline=0&portrait=0&color=dd237d&api=1'+(auto?'&autoplay=1':''));
     f.title=bg?'Teaser im Hintergrund (stumm)':'Teaser-Video';
     f.setAttribute('allow','autoplay; fullscreen; picture-in-picture');
     f.setAttribute('allowfullscreen','');
@@ -245,7 +284,32 @@
     ph.appendChild(b);
   }
   function loadBg(){if(bgSlot&&!reduce&&!bgSlot.firstChild){bgSlot.appendChild(frame(bgSlot.getAttribute('data-vimeo-bg'),true));addStop()}}
-  function loadPlayer(p,auto){if(p.querySelector('iframe'))return;p.innerHTML='';p.appendChild(frame(p.getAttribute('data-vimeo'),false,auto))}
+  // Am Videoende nicht Vimeos Endansicht mit weiteren Videos des Kanals zeigen, sondern wieder unser Vorschaubild
+  function resetPlayer(p){
+    p.innerHTML=p._orig;
+    var b=p.querySelector('.vplay');
+    if(b){var t=b.querySelector('b');if(t)t.textContent='Nochmal ansehen';b.addEventListener('click',function(){loadPlayer(p,true)});b.focus({preventScroll:true})}
+  }
+  function listen(f){try{f.contentWindow.postMessage(JSON.stringify({method:'addEventListener',value:'ended'}),'https://player.vimeo.com')}catch(e){}}
+  function loadPlayer(p,auto){
+    if(p.querySelector('iframe'))return;
+    if(p._orig==null)p._orig=p.innerHTML;
+    p.innerHTML='';
+    var f=frame(p.getAttribute('data-vimeo'),false,auto);
+    f.addEventListener('load',function(){listen(f)});
+    p.appendChild(f);
+  }
+  window.addEventListener('message',function(e){
+    if(e.origin!=='https://player.vimeo.com')return;
+    var d=e.data;if(typeof d==='string'){try{d=JSON.parse(d)}catch(x){return}}
+    if(!d||!d.event)return;
+    for(var i=0;i<players.length;i++){
+      var f=players[i].querySelector('iframe');
+      if(!f||f.contentWindow!==e.source)continue;
+      if(d.event==='ready')listen(f);
+      if(d.event==='ended')resetPlayer(players[i]);
+    }
+  });
   for(var i=0;i<players.length;i++)(function(p){var b=p.querySelector('.vplay');if(b)b.addEventListener('click',function(){loadPlayer(p,true)})})(players[i]);
   function apply(){if(get()==='yes'){loadBg();for(var i=0;i<players.length;i++)loadPlayer(players[i],false)}}
   function show(){if(banner){banner.hidden=false;var y=banner.querySelector('.yes');if(y)y.focus({preventScroll:true})}}
