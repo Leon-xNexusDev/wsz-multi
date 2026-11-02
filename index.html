@@ -17,13 +17,11 @@
 <meta property="og:image:alt" content="Wir stehen zusammen – #WirStehenZusammen">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="https://leon-xnexusdev.github.io/wsz-multi/">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@500;600;700;800&family=Figtree:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="css/wsz.css">
 <link rel="icon" href="img/logo.webp">
 </head>
 <body>
+<a class="skip" href="#start">Zum Inhalt springen</a>
 <header class="top">
   <div class="wrap">
     <a class="brand" href="index.html" aria-label="Wir stehen zusammen – Startseite"><img src="img/logo.webp" alt="" width="44" height="44"><span>#WirStehenZusammen</span></a>
@@ -55,7 +53,7 @@
       <div>
         <span class="tag hot">Protestversprechen</span>
         <h2 style="margin-top:14px">Wo bist du dabei?</h2>
-        <p class="p-intro">Tipp auf deine Stadt und gib dein Versprechen ab. Alle sehen, wie viele schon zugesagt haben und wo wir überall sind.</p>
+        <p class="p-intro">Such deine Stadt und sag zu. Die Zahlen sind für alle sichtbar, Namen nie.</p>
       </div>
       <div class="total">
         <b data-count="total">18.875</b>
@@ -76,10 +74,10 @@
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
           <input id="city-search" type="search" placeholder="Stadt oder Treffpunkt suchen" autocomplete="off">
         </label>
-        <p class="rank-head">Welche Stadt wird am lautesten? Die Rangliste zeigt, wo die meisten zugesagt haben.</p>
+        <p class="rank-head">Sortiert nach Zusagen.</p>
         <ol class="cities" id="cities"></ol>
         <button type="button" class="more" id="more">Alle Städte anzeigen</button>
-        <p class="missing">Deine Stadt fehlt? <a href="mitmachen.html#gruenden">Gründe eine Gruppe</a> oder schreib uns.</p>
+        <p class="missing">Deine Stadt fehlt? <a href="mitmachen.html#gruenden">Dann gründe eine Gruppe.</a></p>
       </div>
     </div>
     <p class="p-quote">„Wenn der Sozialstaat angegriffen wird, gehe ich mit auf die Straße. Wir stehen zusammen.“ <span class="ph dark">Wortlaut Platzhalter</span></p>
@@ -88,11 +86,11 @@
 
 <section class="section">
   <div class="wrap">
-    <div class="sec-head"><span class="tag navy">Mehr erfahren</span><h2>Streiks mit Protest verbinden.</h2></div>
+    <div class="sec-head"><h2>Mehr zur Kampagne</h2></div>
     <div class="guide">
-      <a href="worum-es-geht.html"><span class="tag" style="justify-self:start">Worum es geht</span><h3>Es reicht!</h3><p>Milliarden sollen gekürzt werden. Warum Protest allein nicht reicht und was unser Plan ist.</p><span class="more-l">Weiterlesen →</span></a>
-      <a href="mitmachen.html"><span class="tag hot" style="justify-self:start">Mitmachen</span><h3>Dafür braucht es dich</h3><p>Im Betrieb, im Kiez, im Bündnis. Komm zum ersten Treffen oder gründe eine Gruppe in deiner Stadt.</p><span class="more-l">So machst du mit →</span></a>
-      <a href="material.html"><span class="tag navy" style="justify-self:start">Material</span><h3>Flyer, Logo, Sharepics</h3><p>Alles zum Kopieren, Verteilen und Teilen für eure Aktionen vor Ort.</p><span class="more-l">Zum Material →</span></a>
+      <a href="worum-es-geht.html"><h3>Worum es geht</h3><p>Milliarden sollen gekürzt werden. Warum Protest allein nicht reicht und was unser Plan ist.</p></a>
+      <a href="mitmachen.html"><h3>Mitmachen</h3><p>Komm zum ersten Treffen oder gründe eine Gruppe in deiner Stadt.</p></a>
+      <a href="material.html"><h3>Material</h3><p>Flyer, Logo und Sharepics zum Ausdrucken und Teilen.</p></a>
     </div>
   </div>
 </section>
@@ -110,7 +108,7 @@
 <div class="consent" id="consent" hidden>
   <div class="box" role="dialog" aria-labelledby="consent-h" aria-describedby="consent-p">
     <h2 id="consent-h">Videos von Vimeo laden?</h2>
-    <p id="consent-p">Wir zeigen unseren Teaser über Vimeo. Wenn du zustimmst, wird er geladen und dabei werden Daten wie deine IP-Adresse an Vimeo (USA) übertragen. Ohne Zustimmung siehst du ein Bild und kannst das Video später per Klick starten. <a href="datenschutz.html#videos">Mehr dazu</a></p>
+    <p id="consent-p">Unser Teaser liegt bei Vimeo (USA). Wenn du zustimmst, wird er geladen und Vimeo sieht deine IP-Adresse. Ohne Zustimmung startest du das Video später selbst per Klick. <a href="datenschutz.html#videos">Mehr dazu</a></p>
     <div class="acts"><button type="button" class="yes" data-consent="yes">Videos erlauben</button><button type="button" class="no" data-consent="no">Ablehnen</button></div>
   </div>
 </div>

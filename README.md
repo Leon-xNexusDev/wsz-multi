@@ -23,10 +23,12 @@ python3 _quellen/build.py
 - `material/WSZ_Flyer.pdf` und `material/WSZ_Logo_Sharepics.zip`
 - Telegram-Link eintragen
 - Versprechen speichern: `sendPledge()` in `_quellen/src/wsz.js` an den Server anbinden
-- Schriften lokal einbinden statt Google Fonts
 - Alle Zahlen, Treffpunkte und Kontakte sind Beispieldaten
 
 ## Linkvorschau & Teilen
 - Vorschaubilder (1200 × 630) liegen in `og/`: `start.png` für alle Seiten, dazu eins pro Stadt. Sie werden von `_quellen/og.py` beim Build erzeugt.
 - **Wichtig bei eigener Domain:** `SITE_URL` oben in `_quellen/build.py` ändern und neu bauen. WhatsApp & Co. brauchen absolute Adressen für die Vorschaubilder.
 - Nach einer Zusage und auf jeder Stadtseite gibt es Teilen-Buttons (WhatsApp, Telegram, Link kopieren, auf dem Handy zusätzlich „Teilen…“ für Instagram, Signal usw.).
+
+## Schriften
+League Spartan (wie im Flyer) und Figtree liegen in `fonts/` (OFL-Lizenz). Es gibt keine Verbindung zu Google Fonts.

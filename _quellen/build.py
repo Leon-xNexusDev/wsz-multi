@@ -58,7 +58,8 @@ PLAY = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l13 8-13 8z" fi
 def header(base, active):
     links = ''.join(
         f'<a href="{base}{href}"{" aria-current=\"page\"" if href == active else ""}>{label}</a>' for href, label in NAV)
-    return f'''<header class="top">
+    return f'''<a class="skip" href="#start">Zum Inhalt springen</a>
+<header class="top">
   <div class="wrap">
     <a class="brand" href="{base}index.html" aria-label="Wir stehen zusammen – Startseite"><img src="{base}img/logo.webp" alt="" width="44" height="44"><span>#WirStehenZusammen</span></a>
     <nav class="navlinks" id="navlinks" aria-label="Hauptmenü">{links}</nav>
@@ -85,8 +86,8 @@ def page_head(tag, title, lead='', crumbs=''):
     return f'''<section class="page-head">
   <div class="wrap">
     {crumbs}
-    <span class="tag">{tag}</span>
-    <h1>{title}</h1>
+    {f'<span class="tag">{tag}</span>' if tag else ''}
+    <h1{' class="first"' if not tag else ''}>{title}</h1>
     {f'<p class="lead">{lead}</p>' if lead else ''}
   </div>
 </section>'''
@@ -109,9 +110,6 @@ def shell(title, body, base='', active='', desc='', artifact_main=False, path='i
 <meta property="og:image:alt" content="{og_title} – #WirStehenZusammen">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="{page_url}">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@500;600;700;800&family=Figtree:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="{base}css/wsz.css">
 <link rel="icon" href="{base}img/logo.webp">'''
     content = f'''{header(base, active)}
@@ -122,7 +120,7 @@ def shell(title, body, base='', active='', desc='', artifact_main=False, path='i
 <div class="consent" id="consent" hidden>
   <div class="box" role="dialog" aria-labelledby="consent-h" aria-describedby="consent-p">
     <h2 id="consent-h">Videos von Vimeo laden?</h2>
-    <p id="consent-p">Wir zeigen unseren Teaser über Vimeo. Wenn du zustimmst, wird er geladen und dabei werden Daten wie deine IP-Adresse an Vimeo (USA) übertragen. Ohne Zustimmung siehst du ein Bild und kannst das Video später per Klick starten. <a href="{base}datenschutz.html#videos">Mehr dazu</a></p>
+    <p id="consent-p">Unser Teaser liegt bei Vimeo (USA). Wenn du zustimmst, wird er geladen und Vimeo sieht deine IP-Adresse. Ohne Zustimmung startest du das Video später selbst per Klick. <a href="{base}datenschutz.html#videos">Mehr dazu</a></p>
     <div class="acts"><button type="button" class="yes" data-consent="yes">Videos erlauben</button><button type="button" class="no" data-consent="no">Ablehnen</button></div>
   </div>
 </div>
@@ -172,7 +170,7 @@ def p_index(base=''):
       <div>
         <span class="tag hot">Protestversprechen</span>
         <h2 style="margin-top:14px">Wo bist du dabei?</h2>
-        <p class="p-intro">Tipp auf deine Stadt und gib dein Versprechen ab. Alle sehen, wie viele schon zugesagt haben und wo wir überall sind.</p>
+        <p class="p-intro">Such deine Stadt und sag zu. Die Zahlen sind für alle sichtbar, Namen nie.</p>
       </div>
       <div class="total">
         <b data-count="total">{fmt(TOTAL)}</b>
@@ -193,10 +191,10 @@ def p_index(base=''):
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
           <input id="city-search" type="search" placeholder="Stadt oder Treffpunkt suchen" autocomplete="off">
         </label>
-        <p class="rank-head">Welche Stadt wird am lautesten? Die Rangliste zeigt, wo die meisten zugesagt haben.</p>
+        <p class="rank-head">Sortiert nach Zusagen.</p>
         <ol class="cities" id="cities"></ol>
         <button type="button" class="more" id="more">Alle Städte anzeigen</button>
-        <p class="missing">Deine Stadt fehlt? <a href="{base}mitmachen.html#gruenden">Gründe eine Gruppe</a> oder schreib uns.</p>
+        <p class="missing">Deine Stadt fehlt? <a href="{base}mitmachen.html#gruenden">Dann gründe eine Gruppe.</a></p>
       </div>
     </div>
     <p class="p-quote">„Wenn der Sozialstaat angegriffen wird, gehe ich mit auf die Straße. Wir stehen zusammen.“ {PH("Wortlaut Platzhalter", True)}</p>
@@ -205,11 +203,11 @@ def p_index(base=''):
 
 <section class="section">
   <div class="wrap">
-    <div class="sec-head"><span class="tag navy">Mehr erfahren</span><h2>Streiks mit Protest verbinden.</h2></div>
+    <div class="sec-head"><h2>Mehr zur Kampagne</h2></div>
     <div class="guide">
-      <a href="{base}worum-es-geht.html"><span class="tag" style="justify-self:start">Worum es geht</span><h3>Es reicht!</h3><p>Milliarden sollen gekürzt werden. Warum Protest allein nicht reicht und was unser Plan ist.</p><span class="more-l">Weiterlesen →</span></a>
-      <a href="{base}mitmachen.html"><span class="tag hot" style="justify-self:start">Mitmachen</span><h3>Dafür braucht es dich</h3><p>Im Betrieb, im Kiez, im Bündnis. Komm zum ersten Treffen oder gründe eine Gruppe in deiner Stadt.</p><span class="more-l">So machst du mit →</span></a>
-      <a href="{base}material.html"><span class="tag navy" style="justify-self:start">Material</span><h3>Flyer, Logo, Sharepics</h3><p>Alles zum Kopieren, Verteilen und Teilen für eure Aktionen vor Ort.</p><span class="more-l">Zum Material →</span></a>
+      <a href="{base}worum-es-geht.html"><h3>Worum es geht</h3><p>Milliarden sollen gekürzt werden. Warum Protest allein nicht reicht und was unser Plan ist.</p></a>
+      <a href="{base}mitmachen.html"><h3>Mitmachen</h3><p>Komm zum ersten Treffen oder gründe eine Gruppe in deiner Stadt.</p></a>
+      <a href="{base}material.html"><h3>Material</h3><p>Flyer, Logo und Sharepics zum Ausdrucken und Teilen.</p></a>
     </div>
   </div>
 </section>
@@ -221,7 +219,7 @@ def p_index(base=''):
 
 
 def p_worum(base=''):
-    return f'''{page_head("Worum es geht", "Erst Sozialabbau stoppen. Dann gemeinsam weiter.", "Die Angriffe auf den Sozialstaat spitzen sich zu. Hier steht, warum wir uns organisieren und wie wir Druck aufbauen wollen.")}
+    return f'''{page_head("", "Worum es geht", "Warum wir uns organisieren und wie wir Druck machen wollen.")}
 
 <section class="situation" aria-labelledby="es-reicht">
   <div class="wrap stack">
@@ -244,7 +242,7 @@ def p_worum(base=''):
       <p>Gute Daseinsvorsorge und faire Arbeitsbedingungen gehen uns alle an. Unter dem Motto #WirStehenZusammen bauen wir eine Protestkaskade auf, die in die Tarifrunden mündet.</p>
     </div>
     <div class="steps">
-      <article class="step"><span class="when">Herbst 2026</span><h3>Protestkaskade</h3><p>Demos und Aktionen in vielen Städten, eine nach der anderen. Jede Welle größer als die letzte. {PH("Termine folgen")}</p></article>
+      <article class="step"><span class="when">Herbst 2026</span><h3>Protestkaskade</h3><p>Demos und Aktionen in vielen Städten, eine nach der anderen. {PH("Termine folgen")}</p></article>
       <article class="step"><span class="when">Laufend</span><h3>Tarifrunde Charité</h3><p>Kolleg*innen kämpfen dort für bessere Löhne <strong>und</strong> gegen Kürzungen im Gesundheitswesen. Der Ausgang prägt die Krankenhäuser bundesweit.</p></article>
       <article class="step"><span class="when">2027</span><h3>Tarifrunde öffentlicher Dienst</h3><p><strong>2,5 Millionen Beschäftigte.</strong> Wenn wir ihre Streiks mit Protest gegen Sozialabbau verbinden, entsteht richtig Druck.</p></article>
     </div>
@@ -253,24 +251,24 @@ def p_worum(base=''):
 
 <section class="teaser" id="teaser" aria-labelledby="teaser-h" style="padding-bottom:72px">
   <div class="wrap">
-    <div class="t-head"><span class="tag hot">Teaser</span><h2 id="teaser-h">Jetzt mit Ton ansehen.</h2></div>
+    <div class="t-head"><h2 id="teaser-h">Teaser</h2></div>
     <div class="player" data-vimeo="909677587" style="background-image:url('{base}img/demo-verdi.jpg')"><button type="button" class="vplay"><span class="pbtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4l14 8-14 8z" fill="#fff"/></svg></span><b>Video abspielen</b><small>Mit dem Klick lädst du das Video von Vimeo. Dabei werden Daten an Vimeo (USA) übertragen.</small></button></div>
     <p class="t-note">{PH("Übergangs-Video")} Bis unser eigener Teaser fertig ist, zeigen wir hier „Wir fahren zusammen – Wir streiken zusammen“. Video über <a href="https://vimeo.com/909677587">Vimeo</a>.</p>
   </div>
 </section>
 
-{cta_band(base, "Gemeinsam sind wir lauter.")}'''
+{cta_band(base)}'''
 
 
 def p_mitmachen(base=''):
-    return f'''{page_head("Mitmachen", "Dafür braucht es DICH!", "Ein breites Bündnis aus Gewerkschaften, Linkspartei und zivilgesellschaftlichen Initiativen entsteht nicht von allein. Pack mit an.")}
+    return f'''{page_head("", "Dafür braucht es DICH!", "Ein breites Bündnis aus Gewerkschaften, Linkspartei und zivilgesellschaftlichen Initiativen entsteht nicht von allein. Pack mit an.")}
 
 <section class="you" style="background:var(--bg)">
   <div class="wrap">
     <div class="ways" style="margin-top:0">
-      <div class="way"><span class="tag navy" style="justify-self:start">Im Betrieb</span><h3>Mit Kolleg*innen reden</h3><p>Im Krankenhaus, in der Stadtreinigung, in der Kita: Gespräche sind der erste Schritt zum Streik.</p></div>
-      <div class="way"><span class="tag" style="justify-self:start">Im Kiez</span><h3>Nachbarschaft mobilisieren</h3><p>Flyer verteilen, Infostände machen, Leute zu den Aktionen holen. <a href="{base}material.html">Material gibt's hier.</a></p></div>
-      <div class="way"><span class="tag hot" style="justify-self:start">In der Stadt</span><h3>Bündnis aufbauen</h3><p>Gewerkschaften, Initiativen und Vereine vor Ort an einen Tisch holen. Gemeinsam sind wir lauter.</p></div>
+      <div class="way"><span class="kicker">Im Betrieb</span><h3>Mit Kolleg*innen reden</h3><p>Im Krankenhaus, in der Stadtreinigung, in der Kita: Gespräche sind der erste Schritt zum Streik.</p></div>
+      <div class="way"><span class="kicker">Im Kiez</span><h3>Nachbarschaft mobilisieren</h3><p>Flyer verteilen, Infostände machen, Leute zu den Aktionen holen. <a href="{base}material.html">Material gibt's hier.</a></p></div>
+      <div class="way"><span class="kicker">In der Stadt</span><h3>Bündnis aufbauen</h3><p>Gewerkschaften, Initiativen und Vereine vor Ort an einen Tisch holen.</p></div>
     </div>
     <div class="meet">
       <div class="card on-dark">
@@ -282,7 +280,7 @@ def p_mitmachen(base=''):
       <div class="card berry on-dark" id="telegram">
         <span class="tag navy" style="justify-self:start">Telegram</span>
         <p class="when">Bundesweiter Kanal</p>
-        <p>Alle Infos zu Aktionen und Terminen direkt aufs Handy.</p>
+        <p>Termine und Aufrufe direkt aufs Handy.</p>
         <a class="btn btn-navy" href="#telegram" style="justify-self:start">Kanal beitreten</a>
         {PH("Link aus QR-Code eintragen", True).replace('">', '" style="justify-self:start">', 1)}
       </div>
@@ -292,7 +290,7 @@ def p_mitmachen(base=''):
 
 <section class="section" id="gruenden" style="padding-top:0">
   <div class="wrap">
-    <div class="sec-head"><span class="tag navy">Deine Stadt fehlt?</span><h2>Gründe eine Gruppe.</h2><p>Du musst das nicht allein stemmen. So kommt deine Stadt auf die Karte:</p></div>
+    <div class="sec-head"><h2>Deine Stadt fehlt noch?</h2><p>So kommt sie auf die Karte:</p></div>
     <ol class="steps3">
       <li><h3>Schreib uns</h3><p>Kurze Mail an <span class="sel" id="grp-mail">kontakt@wirstehenzusammen.de</span> mit Stadt und wie wir dich erreichen. <button type="button" class="copy" data-copy="grp-mail">Kopieren</button></p></li>
       <li><h3>Wir vernetzen euch</h3><p>Wir bringen dich mit Leuten aus deiner Stadt zusammen, die schon zugesagt haben, und mit Gewerkschafter*innen vor Ort.</p></li>
@@ -307,9 +305,9 @@ def p_mitmachen(base=''):
 
 def p_staedte(base=''):
     cards = ''.join(
-        f'<a href="{base}staedte/{c["id"]}.html"><b>{c["n"]}</b><span class="n"><span data-count="{c["id"]}">{fmt(c["c"])}</span><span>dabei</span></span><small>{c["tp"]}</small></a>'
+        f'<a href="{base}staedte/{c["id"]}.html"><b>{c["n"]}</b><span class="n"><span data-count="{c["id"]}">{fmt(c["c"])}</span><span>Zusagen</span></span><small>{c["tp"]}</small></a>'
         for c in ALPHA)
-    return f'''{page_head("Städte", "Wo wir schon sind.", f"In {len(CITIES)} Städten organisieren wir uns schon. Jede Stadt hat eine eigene Seite mit Treffpunkt, Terminen, Kanälen und Pressekontakt.")}
+    return f'''{page_head("", "Städte", f"In {len(CITIES)} Städten gibt es schon Gruppen. Auf jeder Stadtseite stehen Treffpunkt, Termine und Kontakt.")}
 
 <section class="section">
   <div class="wrap overview">
@@ -333,11 +331,10 @@ def p_city(c, base='../'):
     return f'''<section class="page-head">
   <div class="wrap">
     {crumbs}
-    <span class="tag" style="margin-top:14px">#WirStehenZusammen {c["n"]}</span>
-    <h1>{c["n"]} steht zusammen.</h1>
+    <h1 class="first">{c["n"]}</h1>
     <div class="city-stats">
       <div><div class="big" data-count="{c["id"]}">{fmt(c["c"])}</div></div>
-      <div class="lbl">Versprechen<br>aus {c["n"]}</div>
+      <div class="lbl">Zusagen<br>aus {c["n"]}</div>
       {PH("Beispielzahl", True)}
     </div>
   </div>
@@ -366,14 +363,14 @@ def p_city(c, base='../'):
 
 <section class="section">
   <div class="wrap">
-    <div class="sec-head"><h2 style="font-size:clamp(24px,3vw,32px)">Weitere Städte</h2></div>
+    <div class="sec-head"><h2 style="font-size:clamp(22px,2.6vw,28px)">Andere Städte</h2></div>
     <div class="other-cities">{others}</div>
   </div>
 </section>'''
 
 
 def p_material(base=''):
-    return f'''{page_head("Material", "Zum Kopieren und Weitergeben.", "Flyer, Logo und Sharepics für eure Aktionen vor Ort. Druckt, verteilt und teilt so viel ihr könnt.")}
+    return f'''{page_head("", "Material", "Zum Ausdrucken und Teilen. Nehmt euch, was ihr braucht.")}
 
 <section class="section">
   <div class="wrap">
@@ -406,29 +403,27 @@ def p_material(base=''):
   </div>
 </section>
 
-{cta_band(base, "Material verteilt? Dann gib auch dein Versprechen ab.")}'''
+{cta_band(base)}'''
 
 
 def p_presse(base=''):
     rows = ''.join(
         f'<tr><td><a href="{base}staedte/{c["id"]}.html">{c["n"]}</a></td><td><span class="sel">presse-{c["id"]}@wirstehenzusammen.de</span></td></tr>'
         for c in ALPHA)
-    return f'''{page_head("Presse", "Für Journalist*innen.", "Hier findet ihr unsere Ansprechpersonen, Pressemitteilungen und Fotos. Presseanfragen bitte per E-Mail.")}
+    return f'''{page_head("", "Presse", "Anfragen bitte per E-Mail. Für Berichte aus einer bestimmten Stadt meldet euch direkt bei der Gruppe dort.")}
 
 <section class="section">
   <div class="wrap">
     <div class="press-grid">
       <div class="pcard">
-        <span class="tag navy" style="justify-self:start">Bundesweit</span>
-        <h3>Zentraler Pressekontakt</h3>
+        <h3>Bundesweit</h3>
         <p>[Name, Funktion] {PH("Platzhalter")}</p>
         <p><span class="sel" id="press-main">presse@wirstehenzusammen.de</span> <button type="button" class="copy" data-copy="press-main">Kopieren</button></p>
         <p>Telefon: [Nummer] {PH("Platzhalter")}</p>
       </div>
       <div class="pcard">
-        <span class="tag" style="justify-self:start">Downloads</span>
-        <h3>Pressemitteilungen &amp; Fotos</h3>
-        <p>Aktuelle Mitteilungen, Logo und honorarfreie Fotos von unseren Aktionen mit Bildnachweis.</p>
+        <h3>Pressemitteilungen und Fotos</h3>
+        <p>Fotos von unseren Aktionen sind honorarfrei, mit Bildnachweis.</p>
         <p>{PH("Folgt")}</p>
       </div>
     </div>
@@ -437,14 +432,14 @@ def p_presse(base=''):
 
 <section class="section">
   <div class="wrap">
-    <div class="sec-head"><span class="tag hot">Vor Ort</span><h2>Lokale Pressekontakte</h2><p>Für Berichte aus einer bestimmten Stadt wendet euch direkt an die Gruppe vor Ort. {PH("Beispieladressen")}</p></div>
+    <div class="sec-head"><h2>Pressekontakte vor Ort</h2><p>{PH("Beispieladressen")}</p></div>
     <div class="tbl-wrap"><table class="contacts"><thead><tr><th>Stadt</th><th>E-Mail</th></tr></thead><tbody>{rows}</tbody></table></div>
   </div>
 </section>'''
 
 
 def p_impressum(base=''):
-    return f'''{page_head("Rechtliches", "Impressum")}
+    return f'''{page_head("", "Impressum")}
 <section class="section"><div class="wrap prose">
   <div class="todo"><p><strong>Platzhalter.</strong> Wird ausgefüllt, sobald die rechtliche Trägerschaft geklärt ist (Katja klärt mit Pascal, IGM).</p></div>
   <h2>Angaben gemäß § 5 DDG</h2>
@@ -459,12 +454,12 @@ def p_impressum(base=''):
 
 
 def p_datenschutz(base=''):
-    return f'''{page_head("Rechtliches", "Datenschutz")}
+    return f'''{page_head("", "Datenschutz")}
 <section class="section"><div class="wrap prose">
   <div class="todo"><p><strong>Platzhalter.</strong> Gliederung der Datenschutzerklärung. Der endgültige Text muss rechtlich geprüft werden, bevor das Versprechen-Formular live geht.</p></div>
   <h2>1. Verantwortliche Stelle</h2><p>[Name, Anschrift, E-Mail]</p>
   <h2>2. Hosting</h2><p>Die Website liegt auf einem eigenen Server bei [Anbieter, Standort Deutschland/EU]. Beim Aufruf werden technisch notwendige Daten (IP-Adresse, Zeitpunkt, aufgerufene Seite) in Server-Logs verarbeitet. [Speicherdauer]</p>
-  <h2>3. Schriften</h2><p>Die Seite lädt derzeit Schriften von Google Fonts. Vor dem Start sollten die Schriften lokal eingebunden werden, dann entfällt dieser Abschnitt.</p>
+  <h2>3. Schriften</h2><p>Alle Schriften liegen auf unserem eigenen Server. Es wird keine Verbindung zu Google oder anderen Schrift-Anbietern aufgebaut.</p>
   <h2 id="videos">4. Eingebettete Videos (Vimeo)</h2><p>Auf der Startseite und auf „Worum es geht“ zeigen wir ein Video von Vimeo (Vimeo.com Inc., USA). Es wird erst geladen, wenn du im Hinweis „Videos erlauben“ wählst oder auf „Video abspielen“ klickst. Erst dann wird eine Verbindung zu Vimeo hergestellt und deine IP-Adresse übertragen. Wir nutzen den Modus „Do Not Track“. Rechtsgrundlage ist deine Einwilligung (Art. 6 Abs. 1 lit. a DSGVO, § 25 Abs. 1 TDDDG). Deine Auswahl speichern wir nur in deinem Browser. Du kannst sie jederzeit über „Video-Einstellungen“ unten auf jeder Seite ändern. {PH("Rechtlich prüfen")}</p>
   <h2>5. Protestversprechen</h2>
   <p>Wenn du ein Versprechen abgibst, verarbeiten wir:</p>
@@ -480,8 +475,11 @@ def p_datenschutz(base=''):
 # ---------- Build ----------
 
 def build():
-    for sub in ('staedte', 'css', 'js', 'img'):
+    for sub in ('staedte', 'css', 'js', 'img', 'fonts'):
         os.makedirs(os.path.join(DIST, sub), exist_ok=True)
+    for fn in os.listdir(os.path.join(SRC, 'fonts')):
+        if fn.endswith('.woff2'):
+            shutil.copy(os.path.join(SRC, 'fonts', fn), os.path.join(DIST, 'fonts', fn))
     css = open(os.path.join(SRC, 'base.css')).read() + open(os.path.join(SRC, 'pages.css')).read()
     js = open(os.path.join(SRC, 'wsz.js')).read()
     data = '/* Städte – Beispieldaten. Neue Stadt: Eintrag in _quellen/build.py ergänzen und Script laufen lassen. */\nwindow.WSZ_CITIES=' + json.dumps(CITIES, ensure_ascii=False) + ';\n'

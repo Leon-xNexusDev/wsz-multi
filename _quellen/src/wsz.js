@@ -137,10 +137,10 @@
         h+='<div class="detail">';
         if(openForm===c.id&&!isMine){h+=formHTML(c,{cancel:true})}
         else{
-          if(isMine&&thanks[c.id])h+='<span class="note">Danke, '+esc(thanks[c.id])+'! Dein Versprechen für '+c.n+' zählt. Wir melden uns per E-Mail.</span>';
-          if(isMine)h+=shareHTML(c,true,'Sag es weiter. Jede Zusage macht '+c.n+' lauter:');
+          if(isMine&&thanks[c.id])h+='<span class="note">Danke, '+esc(thanks[c.id])+'. Du bist für '+c.n+' eingetragen. Wir schreiben dir, wenn es losgeht.</span>';
+          if(isMine)h+=shareHTML(c,true,'Schick es an deine Kolleg*innen:');
           h+='<span class="meta">Nächste Aktion: [Datum, Zeit] <span class="ph dark">Platzhalter</span></span>'+
-             '<a class="to-city" href="'+cityUrl(c.id)+'">Zur Stadtseite '+c.n+' →</a>';
+             '<a class="to-city" href="'+cityUrl(c.id)+'">Stadtseite '+c.n+'</a>';
         }
         h+='</div>';
       }
@@ -187,8 +187,8 @@
     var renderCity=function(){
       if(mine===cid){
         cp.innerHTML='<div class="done"><span class="badge">Du bist dabei ✓</span>'+
-          (thanks[cid]?'<p>Danke, '+esc(thanks[cid])+'! Dein Versprechen für '+cc.n+' zählt. Wir melden uns per E-Mail, sobald es losgeht.</p>':'<p>Du hast für '+cc.n+' zugesagt. Wir melden uns per E-Mail, sobald es losgeht.</p>')+
-          shareHTML(cc,true,'Erzähl es deinen Kolleg*innen. Jede Zusage macht '+cc.n+' lauter:')+'</div>';
+          (thanks[cid]?'<p>Danke, '+esc(thanks[cid])+'. Du bist für '+cc.n+' eingetragen. Wir schreiben dir, wenn es losgeht.</p>':'<p>Du hast für '+cc.n+' zugesagt. Wir melden uns per E-Mail, sobald es losgeht.</p>')+
+          shareHTML(cc,true,'Schick es an deine Kolleg*innen:')+'</div>';
       } else cp.innerHTML=formHTML(cc,{noTitle:true});
     };
     renderers.push(renderCity); renderCity();
