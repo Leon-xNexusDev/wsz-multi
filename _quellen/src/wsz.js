@@ -35,11 +35,11 @@
     return '<form class="pform" data-pform="'+c.id+'" novalidate>'+
       (opts.noTitle?'':'<p class="pf-title">Dein Versprechen für '+c.n+'</p>')+sw+
       '<div class="pf-row">'+
-        '<label class="pf"><span>Name</span><input id="pf-name-'+c.id+'" name="name" autocomplete="name" placeholder="Vor- und Nachname" required></label>'+
-        '<label class="pf"><span>E-Mail</span><input id="pf-mail-'+c.id+'" name="email" type="email" autocomplete="email" placeholder="du@beispiel.de" required></label>'+
+        '<label class="pf"><span>Name</span><input id="pf-name-'+c.id+'" name="name" autocomplete="name" placeholder="z. B. Alex Schmidt" required></label>'+
+        '<label class="pf"><span>E-Mail</span><input id="pf-mail-'+c.id+'" name="email" type="email" autocomplete="email" spellcheck="false" autocapitalize="off" placeholder="du@beispiel.de" required></label>'+
       '</div>'+
       '<label class="pf"><span>Wo bist du im TVöD angestellt?</span><select id="pf-tvoed-'+c.id+'" name="tvoed" required><option value="">Bitte wählen</option>'+TVOED.map(function(o){return '<option>'+o+'</option>'}).join('')+'</select></label>'+
-      '<label class="pf"><span>Betrieb / Arbeitgeber <em>(optional)</em></span><input id="pf-betrieb-'+c.id+'" name="betrieb" placeholder="z. B. Uniklinik, Stadtreinigung, Kita-Eigenbetrieb"></label>'+
+      '<label class="pf"><span>Betrieb / Arbeitgeber <em>(optional)</em></span><input id="pf-betrieb-'+c.id+'" name="betrieb" autocomplete="organization" placeholder="z. B. Uniklinik, Stadtreinigung, Kita-Eigenbetrieb"></label>'+
       '<label class="pf-check"><input type="checkbox" id="pf-ok-'+c.id+'" required> <span>Ich bin einverstanden, dass ihr meine Angaben speichert, um mich zu Aktionen in '+c.n+' und in meinem Bereich zu informieren. Widerruf jederzeit möglich, Details in der <a href="'+B+'datenschutz.html">Datenschutzerklärung</a>.</span></label>'+
       '<div class="pf-acts"><button type="submit" class="pf-send">Versprechen abgeben</button>'+(opts.cancel?'<button type="button" class="pf-cancel" data-cancel="1">Abbrechen</button>':'')+'</div>'+
       '<span class="note" id="pf-note-'+c.id+'" role="status" hidden></span>'+
@@ -50,7 +50,9 @@
     var id=f.getAttribute('data-pform'), c=byId[id], g=function(k){return document.getElementById('pf-'+k+'-'+id)};
     var note=g('note'), name=g('name').value.trim(), mail=g('mail').value.trim(), tv=g('tvoed').value, ok=g('ok').checked;
     var err=!name?'Bitte gib deinen Namen ein.':!/^\S+@\S+\.\S+$/.test(mail)?'Bitte gib eine gültige E-Mail-Adresse ein.':!tv?'Bitte wähl aus, wo du angestellt bist.':!ok?'Bitte bestätige die Einwilligung.':'';
-    if(err){note.hidden=false;note.textContent=err;return}
+    var bad=!name?g('name'):!/^\S+@\S+\.\S+$/.test(mail)?g('mail'):!tv?g('tvoed'):!ok?g('ok'):null;
+    ['name','mail','tvoed','ok'].forEach(function(k){g(k).removeAttribute('aria-invalid')});
+    if(err){note.hidden=false;note.textContent=err;bad.setAttribute('aria-invalid','true');bad.setAttribute('aria-describedby',note.id);bad.focus();return}
     sendPledge({stadt:id,name:name,email:mail,tvoed:tv,betrieb:g('betrieb').value.trim()}).then(function(){
       if(mine&&byId[mine])byId[mine].c-=1;
       mine=id; c.c+=1; thanks[id]=name.split(' ')[0];
@@ -99,7 +101,7 @@
     var marks={};
     C.slice().sort(function(a,b){return a.c-b.c}).forEach(function(c){
       var q=proj(c.lon,c.lat), focus=opts.focus===c.id, s=focus?16:10;
-      var g=el('g',{class:'city'+(focus?' on':''),tabindex:opts.labelsOnlyFocus&&!focus?-1:0,role:'link','aria-label':c.n},svg);
+      var g=el('g',opts.labelsOnlyFocus?{class:'city'+(focus?' on':'')}:{class:'city',tabindex:0,role:'link','aria-label':c.n},svg);
       el('rect',{class:'ring',x:q[0]-s/2-5,y:q[1]-s/2-5,width:s+10,height:s+10},g);
       el('rect',{x:q[0]-s/2,y:q[1]-s/2,width:s,height:s},g);
       if(!opts.labelsOnlyFocus||focus){
@@ -233,7 +235,14 @@
     if(bg){f.className='bgframe';f.setAttribute('aria-hidden','true');f.tabIndex=-1}
     return f;
   }
-  function loadBg(){if(bgSlot&&!reduce&&!bgSlot.firstChild)bgSlot.appendChild(frame(bgSlot.getAttribute('data-vimeo-bg'),true))}
+
+  function addStop(){
+    var ph=bgSlot&&bgSlot.parentNode; if(!ph||ph.querySelector('.vid-stop'))return;
+    var b=document.createElement('button'); b.type='button'; b.className='vid-stop'; b.textContent='Video anhalten';
+    b.addEventListener('click',function(){bgSlot.innerHTML='';b.remove()});
+    ph.appendChild(b);
+  }
+  function loadBg(){if(bgSlot&&!reduce&&!bgSlot.firstChild){bgSlot.appendChild(frame(bgSlot.getAttribute('data-vimeo-bg'),true));addStop()}}
   function loadPlayer(p,auto){if(p.querySelector('iframe'))return;p.innerHTML='';p.appendChild(frame(p.getAttribute('data-vimeo'),false,auto))}
   for(var i=0;i<players.length;i++)(function(p){var b=p.querySelector('.vplay');if(b)b.addEventListener('click',function(){loadPlayer(p,true)})})(players[i]);
   function apply(){if(get()==='yes'){loadBg();for(var i=0;i<players.length;i++)loadPlayer(players[i],false)}}

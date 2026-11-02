@@ -416,7 +416,7 @@ ol.steps3{margin:0;padding:0}
 @media (max-width:420px){.sbtn{font-size:13px;padding:11px 4px 9px}}
 
 /* ===== Weniger Schablone ===== */
-.kicker{font-family:var(--display);font-weight:700;font-size:16px;color:var(--berry)}
+.kicker{font-family:var(--display);font-weight:700;font-size:16px;color:#9a2a5c}
 /* Plan als Zeitleiste statt drei Karten */
 .steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin-top:40px;position:relative}
 .steps::before{content:"";position:absolute;left:0;right:0;top:9px;height:3px;background:var(--navy)}
@@ -462,3 +462,18 @@ ol.steps3{margin:0;padding:0}
 .skip{position:absolute;left:12px;top:-60px;z-index:60;background:var(--hot);color:#fff;font-weight:700;padding:10px 14px;text-decoration:none}
 .skip:focus{top:12px}
 @media (max-width:560px){.consent{padding-bottom:calc(10px + env(safe-area-inset-bottom,0px))}.consent .box{padding:14px 16px;gap:8px;box-shadow:5px 5px 0 var(--berry)}.consent h2{font-size:18px}.consent p{font-size:13px;line-height:1.4}.consent .acts{flex-wrap:nowrap}.consent .acts button{flex:1 1 0;font-size:15px;padding:11px 8px 9px}}
+
+/* ===== Barrierefreiheit & Bedienung ===== */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+a,button,input,select,label,summary,[role="link"]{touch-action:manipulation}
+.ph.dark,.on-dark .ph{color:#ffd6e7;border-color:#ffd6e7}
+.pf input:focus,.pf select:focus{box-shadow:0 0 0 3px var(--hot)}
+.pf select{background-color:#3a4479;color:#fff}
+.pf [aria-invalid="true"]{border-color:#ffd6e7;box-shadow:0 0 0 3px #f0de3a}
+.search:focus-within{box-shadow:0 0 0 3px var(--hot)}
+.vid-stop{position:absolute;left:max(16px,env(safe-area-inset-left,0px));top:14px;z-index:2;font:inherit;font-size:13px;font-weight:700;color:#fff;background:rgba(26,35,80,.82);border:2px solid #fff;padding:7px 11px 6px;cursor:pointer}
+.vid-stop:hover{background:var(--hot);border-color:var(--hot)}
+.photo:has(.vid-stop) .vid-ph{display:none}
+@media (max-width:560px){.vid-stop{top:10px;font-size:12px;padding:6px 9px 5px}}
+.meet .card.berry p{color:#fff}
+.meet .card.berry .ph{background:rgba(26,35,80,.45);color:#fff;border-color:#fff}

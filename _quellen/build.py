@@ -61,10 +61,10 @@ def header(base, active):
     return f'''<a class="skip" href="#start">Zum Inhalt springen</a>
 <header class="top">
   <div class="wrap">
-    <a class="brand" href="{base}index.html" aria-label="Wir stehen zusammen – Startseite"><img src="{base}img/logo.webp" alt="" width="44" height="44"><span>#WirStehenZusammen</span></a>
+    <a class="brand" href="{base}index.html" aria-label="Wir stehen zusammen – Startseite"><img src="{base}img/logo.webp" alt="" width="44" height="44"><span translate="no">#WirStehenZusammen</span></a>
     <nav class="navlinks" id="navlinks" aria-label="Hauptmenü">{links}</nav>
     <a class="btn btn-hot cta" href="{base}index.html#versprechen">Protestversprechen</a>
-    <button type="button" class="menu-btn" aria-expanded="false" aria-controls="navlinks">{MENU_ICON}<span>Menü</span></button>
+    <button type="button" class="menu-btn" aria-label="Menü" aria-expanded="false" aria-controls="navlinks">{MENU_ICON}<span>Menü</span></button>
   </div>
 </header>'''
 
@@ -98,6 +98,7 @@ def shell(title, body, base='', active='', desc='', artifact_main=False, path='i
     page_url = SITE_URL + ('' if path == 'index.html' else path)
     head = f'''<title>{title}</title>
 <meta name="description" content="{desc}">
+<meta name="theme-color" content="#26326b">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Wir stehen zusammen">
 <meta property="og:locale" content="de_DE">
@@ -150,7 +151,7 @@ def shell(title, body, base='', active='', desc='', artifact_main=False, path='i
 
 def p_index(base=''):
     body = f'''<section class="hero">
-  <div class="photo" style="background-image:url('{base}img/demo-blockade.jpg')" role="img" aria-label="Kampagnen-Teaser, läuft stumm im Hintergrund">
+  <div class="photo" style="background-image:url('{base}img/demo-blockade.jpg')">
     <div class="bgslot" data-vimeo-bg="909677587" aria-hidden="true"></div>
     <a class="vid-cta" href="{base}worum-es-geht.html#teaser">{PLAY}Teaser mit Ton</a>
     {PH("Übergangs-Video", True).replace('class="ph dark"', 'class="ph dark vid-ph"')}
@@ -160,7 +161,7 @@ def p_index(base=''):
     <div class="bar bar-2"><div class="wrap"><span class="big">SOZIALSTAAT<br>VERTEIDIGEN.</span></div></div>
   </div>
   <div class="wrap below on-dark">
-    <div class="logo"><img src="{base}img/logo.webp" alt="Logo Wir stehen zusammen"></div>
+    <div class="logo"><img src="{base}img/logo.webp" alt="Logo Wir stehen zusammen" width="220" height="220" fetchpriority="high"></div>
     <div><p class="lead">Die Angriffe auf den Sozialstaat spitzen sich zu. Wir bringen Aktivist*innen und Kolleg*innen bundesweit zusammen und verbinden Streiks mit Protest.</p></div>
   </div>
 </section>
@@ -190,7 +191,7 @@ def p_index(base=''):
       <div class="listcol">
         <label class="search" for="city-search">
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
-          <input id="city-search" type="search" placeholder="Stadt oder Treffpunkt suchen" autocomplete="off">
+          <input id="city-search" type="search" placeholder="Stadt oder Treffpunkt suchen…" autocomplete="off">
         </label>
         <p class="rank-head">Sortiert nach Zusagen.</p>
         <ol class="cities" id="cities"></ol>
@@ -213,8 +214,8 @@ def p_index(base=''):
   </div>
 </section>
 
-<section class="closer" style="background-image:url('{base}img/demo-verdi.jpg')" role="img" aria-label="Beschäftigte mit ver.di-Westen und Transparent für Entlastung">
-  <div class="band"><div class="wrap"><span class="hash">#WirStehenZusammen</span><a class="btn btn-hot" href="#versprechen">Werde Teil der Protestbewegung</a></div></div>
+<section class="closer" style="background-image:url('{base}img/demo-verdi.jpg')">
+  <div class="band"><div class="wrap"><span class="hash" translate="no">#WirStehenZusammen</span><a class="btn btn-hot" href="#versprechen">Werde Teil der Protestbewegung</a></div></div>
 </section>'''
     return body
 
@@ -266,6 +267,7 @@ def p_mitmachen(base=''):
 
 <section class="you" style="background:var(--bg)">
   <div class="wrap">
+    <h2 class="sr-only">So machst du mit</h2>
     <div class="ways" style="margin-top:0">
       <div class="way"><span class="kicker">Im Betrieb</span><h3>Mit Kolleg*innen reden</h3><p>Im Krankenhaus, in der Stadtreinigung, in der Kita: Gespräche sind der erste Schritt zum Streik.</p></div>
       <div class="way"><span class="kicker">Im Kiez</span><h3>Nachbarschaft mobilisieren</h3><p>Flyer verteilen, Infostände machen, Leute zu den Aktionen holen. <a href="{base}material.html">Material gibt's hier.</a></p></div>
@@ -375,6 +377,7 @@ def p_material(base=''):
 
 <section class="section">
   <div class="wrap">
+    <h2 class="sr-only">Downloads</h2>
     <div class="mats" style="margin-top:0">
       <article class="mat">
         <div class="thumb">#WirStehen&shy;Zusammen</div>
@@ -385,7 +388,7 @@ def p_material(base=''):
         </div>
       </article>
       <article class="mat">
-        <div class="thumb berry logo-thumb"><img src="{base}img/logo.webp" alt=""></div>
+        <div class="thumb berry logo-thumb"><img src="{base}img/logo.webp" alt="" width="150" height="150" loading="lazy"></div>
         <div>
           <h3>Logo &amp; Sharepics</h3>
           <p>Das Kampagnenlogo als PNG und Vorlagen für Instagram-Posts und Storys. Einfach euren Ort und Termin eintragen und teilen.</p>
@@ -415,6 +418,7 @@ def p_presse(base=''):
 
 <section class="section">
   <div class="wrap">
+    <h2 class="sr-only">Kontakt</h2>
     <div class="press-grid">
       <div class="pcard">
         <h3>Bundesweit</h3>
