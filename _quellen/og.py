@@ -77,7 +77,8 @@ def make_og(dest, line1, line2, bottom, photo='demo-blockade.jpg'):
     d.line((ax - 4, ay, ax + 22, ay), fill=WHITE, width=5)
     d.polygon([(ax + 26, ay), (ax + 12, ay - 12), (ax + 12, ay + 12)], fill=WHITE)
 
-    img.save(dest, 'PNG', optimize=True)
+    # JPEG klein halten: WhatsApp lädt Vorschaubilder über ~300 KB oft nicht
+    img.save(dest, 'JPEG', quality=80, optimize=True, progressive=False)
     return dest
 
 

@@ -93,7 +93,7 @@ def page_head(tag, title, lead='', crumbs=''):
 </section>'''
 
 
-def shell(title, body, base='', active='', desc='', artifact_main=False, path='index.html', og='og/start.png', og_title=None):
+def shell(title, body, base='', active='', desc='', artifact_main=False, path='index.html', og='og/start.jpg', og_title=None):
     og_title = og_title or title
     page_url = SITE_URL + ('' if path == 'index.html' else path)
     head = f'''<title>{title}</title>
@@ -105,6 +105,7 @@ def shell(title, body, base='', active='', desc='', artifact_main=False, path='i
 <meta property="og:description" content="{desc}">
 <meta property="og:url" content="{page_url}">
 <meta property="og:image" content="{SITE_URL}{og}">
+<meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="{og_title} – #WirStehenZusammen">
@@ -500,14 +501,14 @@ def build():
     for dst, srcname in imgs.items():
         shutil.copy(os.path.join(IMG, srcname), os.path.join(DIST, 'img', dst))
     os.makedirs(os.path.join(DIST, 'og'), exist_ok=True)
-    make_og(os.path.join(DIST, 'og', 'start.png'), 'Wir stehen zusammen.', 'SOZIALSTAAT VERTEIDIGEN.', 'Gib dein Protestversprechen ab')
+    make_og(os.path.join(DIST, 'og', 'start.jpg'), 'Wir stehen zusammen.', 'SOZIALSTAAT VERTEIDIGEN.', 'Gib dein Protestversprechen ab')
     for fn, title, active, fnc, desc in pages:
         open(os.path.join(DIST, fn), 'w').write(shell(title, fnc(''), '', active, desc, path=fn))
     for c in CITIES:
-        make_og(os.path.join(DIST, 'og', c['id'] + '.png'), f'{c["n"]} steht zusammen.', 'BIST DU DABEI?', 'Jetzt zusagen')
+        make_og(os.path.join(DIST, 'og', c['id'] + '.jpg'), f'{c["n"]} steht zusammen.', 'BIST DU DABEI?', 'Jetzt zusagen')
         out = shell(f'{c["n"]} · Wir stehen zusammen', p_city(c, '../'), '../', 'staedte.html',
                     f'Wir stehen zusammen in {c["n"]}: Treffpunkt, Termine, Kanäle und Protestversprechen. Bist du dabei?',
-                    path=f'staedte/{c["id"]}.html', og=f'og/{c["id"]}.png', og_title=f'{c["n"]} steht zusammen. Bist du dabei?')
+                    path=f'staedte/{c["id"]}.html', og=f'og/{c["id"]}.jpg', og_title=f'{c["n"]} steht zusammen. Bist du dabei?')
         open(os.path.join(DIST, 'staedte', c['id'] + '.html'), 'w').write(out)
     print('ok', len(CITIES), 'Städte')
 

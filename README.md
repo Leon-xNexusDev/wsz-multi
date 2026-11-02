@@ -26,7 +26,7 @@ python3 _quellen/build.py
 - Alle Zahlen, Treffpunkte und Kontakte sind Beispieldaten
 
 ## Linkvorschau & Teilen
-- Vorschaubilder (1200 × 630) liegen in `og/`: `start.png` für alle Seiten, dazu eins pro Stadt. Sie werden von `_quellen/og.py` beim Build erzeugt.
+- Vorschaubilder (1200 × 630, JPEG unter 300 KB) liegen in `og/`: `start.jpg` für alle Seiten, dazu eins pro Stadt. Sie werden von `_quellen/og.py` beim Build erzeugt.
 - **Wichtig bei eigener Domain:** `SITE_URL` oben in `_quellen/build.py` ändern und neu bauen. WhatsApp & Co. brauchen absolute Adressen für die Vorschaubilder.
 - Nach einer Zusage und auf jeder Stadtseite gibt es Teilen-Buttons (WhatsApp, Telegram, Link kopieren, auf dem Handy zusätzlich „Teilen…“ für Instagram, Signal usw.).
 
