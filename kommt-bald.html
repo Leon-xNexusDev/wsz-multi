@@ -20,7 +20,7 @@ html,body{height:100%}
 body{margin:0;background:var(--navy);color:var(--ink);font-family:var(--body);line-height:1.45;overflow-x:clip;
   font-size:clamp(14px,min(2.1dvh,4.2vw),18px);
   display:flex;flex-direction:column;height:100vh;height:100dvh;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-main{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;gap:clamp(10px,3dvh,40px);overflow:hidden;overflow:clip;padding-block:clamp(8px,2.5dvh,32px) 0}
+main{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;gap:clamp(10px,3dvh,40px);overflow:hidden;overflow:clip;padding-block:clamp(8px,2.5dvh,32px)}
 .bars{position:relative}
 .bar{transform:rotate(-3deg);transform-origin:left;margin-inline:-40px;border-top:5px solid #fff}
 .bar .in{max-width:1120px;margin:0 auto;padding:clamp(6px,1.2dvh,12px) max(56px,env(safe-area-inset-right,0px)) clamp(5px,1dvh,10px) max(56px,env(safe-area-inset-left,0px))}
@@ -64,7 +64,6 @@ footer{flex:none;text-align:center;font-size:clamp(11px,1.5dvh,14px);color:#b9bf
     <p class="tag" translate="no">#WirStehenZusammen</p>
   </div>
 </main>
-<footer>Impressum: [Name, Anschrift] · verantwortlich nach § 18 Abs. 2 MStV: [Name]</footer>
 <script>
 document.getElementById('copy').addEventListener('click',function(){
   var b=this,el=document.getElementById('mail'),t=el.textContent.trim();
