@@ -36,11 +36,6 @@ h1{font-family:var(--display);font-weight:800;font-size:clamp(22px,min(6vw,7dvh)
 .text{display:grid;gap:clamp(6px,1.4dvh,14px);justify-items:center;text-align:center;padding-top:clamp(4px,1dvh,12px)}
 .text h2{font-family:var(--display);font-weight:800;font-size:clamp(20px,min(5.6vw,4.2dvh),38px);line-height:1.05;margin:0}
 .text p{margin:0;max-width:52ch;color:var(--muted)}
-.mail{display:inline-flex;gap:8px 10px;align-items:center;flex-wrap:wrap;justify-content:center}
-.mail span{font-weight:600;color:#fff;user-select:all;overflow-wrap:anywhere}
-.mail button{font:inherit;font-size:.85em;font-weight:600;color:#fff;background:transparent;border:2px solid rgba(255,255,255,.55);padding:5px 11px;cursor:pointer;touch-action:manipulation}
-.mail button:hover{background:var(--hot);border-color:var(--hot)}
-.mail button:focus-visible{outline:3px solid #f0de3a;outline-offset:3px}
 .tag{font-family:var(--display);font-weight:800;font-size:clamp(17px,min(4.6vw,3dvh),28px)}
 footer{flex:none;text-align:center;font-size:clamp(11px,1.5dvh,14px);color:#b9bfe6;padding:clamp(6px,1.6dvh,18px) 16px clamp(8px,2dvh,22px)}
 /* niedrige Bildschirme (Handy quer): Logo weg, Text knapper */
@@ -59,18 +54,8 @@ footer{flex:none;text-align:center;font-size:clamp(11px,1.5dvh,14px);color:#b9bf
   <div class="wrap text">
     <h2>Unsere Seite kommt bald.</h2>
     <p class="more">Hier kannst du bald dein Protestversprechen abgeben und deine Gruppe vor Ort finden.</p>
-    <p>Fragen oder Lust mitzumachen? Schreib uns:</p>
-    <div class="mail"><span id="mail">kontakt@wirstehenzusammen.org</span><button type="button" id="copy">Adresse kopieren</button></div>
     <p class="tag" translate="no">#WirStehenZusammen</p>
   </div>
 </main>
-<script>
-document.getElementById('copy').addEventListener('click',function(){
-  var b=this,el=document.getElementById('mail'),t=el.textContent.trim();
-  function ok(){b.textContent='Kopiert';setTimeout(function(){b.textContent='Adresse kopieren'},1600)}
-  function sel(){var r=document.createRange();r.selectNodeContents(el);var s=getSelection();s.removeAllRanges();s.addRange(r)}
-  try{navigator.clipboard.writeText(t).then(ok,sel)}catch(e){sel()}
-});
-</script>
 </body>
 </html>
